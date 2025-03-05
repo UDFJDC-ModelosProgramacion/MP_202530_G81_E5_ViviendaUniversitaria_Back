@@ -8,7 +8,7 @@
 		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>co.edu.uniandes.dse</groupId>
+	<groupId>co.edu.udistrital.mdp</groupId>
 	<artifactId>YYY</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>YYY</name>

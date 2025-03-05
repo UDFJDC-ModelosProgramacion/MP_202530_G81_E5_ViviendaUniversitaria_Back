@@ -1,4 +1,4 @@
-package co.edu.uniandes.dse.ZZZ;
+package co.edu.udistrital.mdp.ZZZ;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

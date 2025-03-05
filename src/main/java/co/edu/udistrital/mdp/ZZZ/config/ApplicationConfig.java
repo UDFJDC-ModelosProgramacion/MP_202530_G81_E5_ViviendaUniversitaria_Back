@@ -1,4 +1,4 @@
-package co.edu.uniandes.dse.ZZZ.config;
+package co.edu.udistrital.mdp.ZZZ.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
