@@ -16,22 +16,6 @@ pipeline {
                url: 'https://github.com/UDFJDC-ModelosProgramacion/' + env.GIT_REPO
          }
       }
-      stage('GitInspector') { 
-         steps {
-            withCredentials([usernamePassword(credentialsId: env.GIT_CREDENTIAL_ID, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-               sh 'mkdir -p code-analyzer-report'
-               sh """ curl --request POST --url https://code-analyzer.virtual.udistrital.edu.co/analyze --header "Content-Type: application/json" --data '{"repo_url":"git@github.com:UDFJDC-ModelosProgramacion/${GIT_REPO}.git", "access_token": "${GIT_PASSWORD}" }' > code-analyzer-report/index.html """   
-            }
-            publishHTML (target: [
-               allowMissing: false,
-               alwaysLinkToLastBuild: false,
-               keepAll: true,
-               reportDir: 'code-analyzer-report',
-               reportFiles: 'index.html',
-               reportName: "GitInspector"
-            ])
-         }
-      }
       stage('Build') {
          // Build artifacts
          steps {
@@ -69,20 +53,6 @@ pipeline {
             }
          }
       }
-      stage('ARCC') {
-         // Run arcc analysis
-         steps {
-            script {
-               docker.image('arcc-tools-isis2603:latest').inside('-e ARCHID_TOKEN=${ARCHID_TOKEN}'){
-                  sh '''
-                     java -version
-                     rsync --recursive . bookstore-back
-                     java -cp /eclipse/plugins/org.eclipse.equinox.launcher_1.5.700.v20200207-2156.jar org.eclipse.equinox.launcher.Main -application co.edu.udistrital.archtoring.archtoring bookstore-back
-                  '''
-               }
-            }
-         }
-      }      
    }
    post {
       always {
