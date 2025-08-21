@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.ZZZ.controllers;
+package co.edu.udistrital.mdp.back.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ public class DefaultController {
     public Map<String, String> welcome() {
         HashMap<String, String> map = new HashMap<>();
         map.put("status", "OK");
-        map.put("message", "REST API for ZZZ is running");
+        map.put("message", "REST API for back is running");
         return map;
     }
 }

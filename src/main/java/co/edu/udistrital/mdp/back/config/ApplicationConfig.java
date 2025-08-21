@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.ZZZ.config;
+package co.edu.udistrital.mdp.back.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ public class ApplicationConfig {
 	public ModelMapper modelMapper() {
 		return new ModelMapper();
 	}
-	
+
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {

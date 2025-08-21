@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.ZZZ.exceptions;
+package co.edu.udistrital.mdp.back.exceptions;
 
 import java.time.LocalDateTime;
 
@@ -13,8 +13,7 @@ import lombok.Data;
 @Data
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.CUSTOM, property = "error", visible = true)
 @JsonTypeIdResolver(LowerCaseClassNameResolver.class)
-public
-class ApiError {
+public class ApiError {
 
     private HttpStatus status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")

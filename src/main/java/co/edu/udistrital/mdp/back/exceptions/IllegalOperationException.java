@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.ZZZ.exceptions;
+package co.edu.udistrital.mdp.back.exceptions;
 
 /*
  * Excepción que se lanza cuando se realiza una operación ilegal
@@ -11,4 +11,3 @@ public class IllegalOperationException extends Exception {
 		super(message);
 	}
 }
-
