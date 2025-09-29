@@ -1,5 +1,4 @@
-package co.edu.udistrital.mdp.back.entities; // Asegúrate de que el paquete sea correcto
-
+package co.edu.udistrital.mdp.back.entities; 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
