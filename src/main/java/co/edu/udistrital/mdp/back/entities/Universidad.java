@@ -1,4 +1,4 @@
-package co.edu.udistrial.mdp.back.entities;
+package co.edu.udistrital.mdp.back.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
