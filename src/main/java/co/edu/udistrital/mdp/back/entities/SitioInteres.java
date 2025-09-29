@@ -1,16 +1,10 @@
 package co.edu.udistrital.mdp.back.entities;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "sitio_interes")
 public class SitioInteres {
-	@Entity
-	@Table(name = "vivienda")
-	public class Vivienda {
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
-	}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +19,8 @@ public class SitioInteres {
     private Vivienda vivienda;
 
     // --- Constructores ---
-    public SitioInteres() {}
+    public SitioInteres() {
+    }
 
     public SitioInteres(String nombre, String ubicacion, int tiempoCaminando, Vivienda vivienda) {
         this.nombre = nombre;
@@ -35,18 +30,43 @@ public class SitioInteres {
     }
 
     // --- Getters y Setters ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getUbicacion() { return ubicacion; }
-    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public int getTiempoCaminando() { return tiempoCaminando; }
-    public void setTiempoCaminando(int tiempoCaminando) { this.tiempoCaminando = tiempoCaminando; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public Vivienda getVivienda() { return vivienda; }
-    public void setVivienda(Vivienda vivienda) { this.vivienda = vivienda; }
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public int getTiempoCaminando() {
+        return tiempoCaminando;
+    }
+
+    public void setTiempoCaminando(int tiempoCaminando) {
+        this.tiempoCaminando = tiempoCaminando;
+    }
+
+    public Vivienda getVivienda() {
+        return vivienda;
+    }
+
+    public void setVivienda(Vivienda vivienda) {
+        this.vivienda = vivienda;
+    }
 }

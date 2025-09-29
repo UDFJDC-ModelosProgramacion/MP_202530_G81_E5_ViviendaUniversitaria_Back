@@ -1,4 +1,4 @@
-package co.edu.udistrial.mdp.back.entities;
+package co.edu.udistrital.mdp.back.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,7 +35,7 @@ public class Propietario extends BaseEntity {
     private LocalDateTime fechaRegistro;
 
     @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
-    private List<Universidad> viviendas = new ArrayList<>();
+    private List<Vivienda> viviendas = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
