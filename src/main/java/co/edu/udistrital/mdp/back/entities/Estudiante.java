@@ -1,4 +1,5 @@
 package co.edu.udistrital.mdp.back.entities;
+
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -10,6 +11,16 @@ public class Estudiante {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String nombre;
+
+    public Estudiante() {}
+    public Estudiante(String nombre) { this.nombre = nombre; }
+
+    public Long getId() { return id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+  
     private String nombre;
     private String correo;
     private String universidad;
