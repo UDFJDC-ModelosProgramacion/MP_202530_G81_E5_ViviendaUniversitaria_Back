@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-public class Vivienda extends BaseEntity {
+public class ViviendaEntity extends BaseEntity {
 
     @Column(nullable = false)
     private String direccion;
@@ -46,16 +46,20 @@ public class Vivienda extends BaseEntity {
     @PodamExclude
     @ManyToMany
     @JoinTable(name = "vivienda_servicio", joinColumns = @JoinColumn(name = "vivienda_id"), inverseJoinColumns = @JoinColumn(name = "servicio_id"))
-    private List<Servicio> servicios = new ArrayList<>();
+    private List<ServicioEntity> servicios = new ArrayList<>();
 
     // Relación con Comentarios (una vivienda puede tener múltiples comentarios)
     @PodamExclude
     @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comentario> comentarios = new ArrayList<>();
+    private List<ComentarioEntity> comentarios = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "propietario_id")
-    private Propietario propietario;
+    private PropietarioEntity propietario;
+
+    @ManyToOne
+    @JoinColumn(name = "universidad_cerca_id")
+    private UniversidadCercaEntity universidadCerca;
 
     public enum TipoVivienda {
         APARTAMENTO,

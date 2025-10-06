@@ -1,16 +1,16 @@
 package co.edu.udistrital.mdp.back.repositories;
 
-import co.edu.udistrital.mdp.back.entities.Notificacion;
+import co.edu.udistrital.mdp.back.entities.NotificacionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
+public interface NotificacionRepository extends JpaRepository<NotificacionEntity, Long> {
 
-    // Encuentra todas las notificaciones para un usuario específico.
-    List<Notificacion> findByUsuarioId(Long usuarioId);
+    // Encuentra todas las NotificacionEntityes para un usuario específico.
+    List<NotificacionEntity> findByUsuarioId(Long usuarioId);
 
-    // Busca notificaciones no leídas de un usuario.
-    List<Notificacion> findByUsuarioIdAndLeidaIsFalse(Long usuarioId);
+    // Busca NotificacionEntityes no leídas de un usuario.
+    List<NotificacionEntity> findByUsuarioIdAndLeidaIsFalse(Long usuarioId);
 }   
