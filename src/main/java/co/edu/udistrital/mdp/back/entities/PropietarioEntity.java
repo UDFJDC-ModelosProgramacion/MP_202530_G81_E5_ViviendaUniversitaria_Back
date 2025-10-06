@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "propietarios")
-public class Propietario extends BaseEntity {
+public class PropietarioEntity extends BaseEntity {
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -35,7 +35,7 @@ public class Propietario extends BaseEntity {
     private LocalDateTime fechaRegistro;
 
     @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
-    private List<Vivienda> viviendas = new ArrayList<>();
+    private List<ViviendaEntity> viviendas = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

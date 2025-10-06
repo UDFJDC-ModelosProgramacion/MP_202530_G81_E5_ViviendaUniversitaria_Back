@@ -13,7 +13,7 @@ import uk.co.jemos.podam.common.PodamExclude;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-public class Comentario extends BaseEntity {
+public class ComentarioEntity extends BaseEntity {
 
     @Column(nullable = false, length = 2000)
     private String contenido;
@@ -30,13 +30,13 @@ public class Comentario extends BaseEntity {
     @PodamExclude
     @ManyToOne
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Vivienda vivienda;
+    private ViviendaEntity vivienda;
 
     // Relación con Usuario/Estudiante que hizo el comentario
     @PodamExclude
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Estudiante autor;
+    private EstudianteEntity autor;
 
     @PrePersist
     protected void onCreate() {

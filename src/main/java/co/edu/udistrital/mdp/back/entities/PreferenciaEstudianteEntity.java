@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "preferencias_estudiante")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PreferenciaEstudiante extends BaseEntity {
+public class PreferenciaEstudianteEntity extends BaseEntity {
 
     // Presupuesto máximo que el estudiante está dispuesto a pagar.
     @Column(name = "precio_maximo")
@@ -31,5 +31,5 @@ public class PreferenciaEstudiante extends BaseEntity {
     // El estudiante al que pertenecen estas preferencias.
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id", nullable = false, unique = true)
-    private Estudiante estudiante;
+    private EstudianteEntity estudiante;
 }

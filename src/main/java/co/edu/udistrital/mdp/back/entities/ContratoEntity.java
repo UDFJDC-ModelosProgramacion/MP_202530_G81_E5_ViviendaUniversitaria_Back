@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "contrato")
-public class Contrato extends BaseEntity {
+public class ContratoEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 50)
     private String codigo;
@@ -34,5 +34,5 @@ public class Contrato extends BaseEntity {
     @EqualsAndHashCode.Exclude
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "estancia_id", nullable = false, unique = true)
-    private Estancia estancia;
+    private EstanciaEntity estancia;
 }

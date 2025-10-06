@@ -2,20 +2,20 @@ package co.edu.udistrital.mdp.back.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import co.edu.udistrital.mdp.back.entities.Contrato;
+import co.edu.udistrital.mdp.back.entities.ContratoEntity;
 import java.util.Optional;
 import java.util.List;
 
 
 @Repository
-public interface ContratoRepository extends JpaRepository<Contrato, Long> {
+public interface ContratoRepository extends JpaRepository<ContratoEntity, Long> {
 
-    // Buscar contrato por código
-    Optional<Contrato> findByCodigo(String codigo);
+    // Buscar ContratoEntity por código
+    Optional<ContratoEntity> findByCodigo(String codigo);
 
-    // Buscar contratos por monto mayor a cierto valor
-    List<Contrato> findByMontoTotalGreaterThan(Double monto);
+    // Buscar ContratoEntitys por monto mayor a cierto valor
+    List<ContratoEntity> findByMontoTotalGreaterThan(Double monto);
 
-    // Buscar contratos que terminen en una fecha específica
-    List<Contrato> findByFechaFin(java.time.LocalDate fechaFin);
+    // Buscar ContratoEntitys que terminen en una fecha específica
+    List<ContratoEntity> findByFechaFin(java.time.LocalDate fechaFin);
 }

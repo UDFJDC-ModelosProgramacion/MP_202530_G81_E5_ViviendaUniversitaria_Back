@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "transacciones")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Transaccion extends BaseEntity {
+public class TransaccionEntity extends BaseEntity {
 
     // Valor monetario de la transacción. Se usa BigDecimal para precisión.
     @Column(nullable = false, precision = 10, scale = 2)
@@ -33,5 +33,5 @@ public class Transaccion extends BaseEntity {
     // Estancia a la que corresponde este pago.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estancia_id", nullable = false)
-    private Estancia estancia;
+    private EstanciaEntity estancia;
 }

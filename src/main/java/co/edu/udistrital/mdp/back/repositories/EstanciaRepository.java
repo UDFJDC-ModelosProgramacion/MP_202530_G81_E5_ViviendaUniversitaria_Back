@@ -3,19 +3,19 @@ package co.edu.udistrital.mdp.back.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import co.edu.udistrital.mdp.back.entities.Estancia;
+import co.edu.udistrital.mdp.back.entities.EstanciaEntity;
 
 import java.util.List;
 
 @Repository
-public interface EstanciaRepository extends JpaRepository<Estancia, Long> {
+public interface EstanciaRepository extends JpaRepository<EstanciaEntity, Long> {
 
-    // Buscar estancias por duración
-    List<Estancia> findByTiempoEstancia(Integer tiempoEstancia);
+    // Buscar EstanciaEntitys por duración
+    List<EstanciaEntity> findByTiempoEstanciaEntity(Integer tiempoEstanciaEntity);
 
-    // Buscar estancias por id de estudiante
-    List<Estancia> findByEstudianteArrendador_Id(Long estudianteId);
+    // Buscar EstanciaEntitys por id de estudiante
+    List<EstanciaEntity> findByEstudianteArrendador_Id(Long estudianteId);
 
-    // Buscar estancias por id de la vivienda
-    List<Estancia> findByViviendaArrendada_Id(Long viviendaId);
+    // Buscar EstanciaEntitys por id de la vivienda
+    List<EstanciaEntity> findByViviendaArrendada_Id(Long viviendaId);
 }

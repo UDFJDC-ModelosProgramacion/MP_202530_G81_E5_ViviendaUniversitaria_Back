@@ -1,4 +1,4 @@
-package co.edu.udistrial.mdp.back.entities;
+package co.edu.udistrital.mdp.back.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "multimedia")
-public class Multimedia extends BaseEntity {
+public class MultimediaEntity extends BaseEntity {
 
     @Column(nullable = false, length = 200)
     private String titulo;
@@ -34,7 +34,7 @@ public class Multimedia extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Universidad vivienda;
+    private UniversidadEntity vivienda;
 
     @PrePersist
     protected void onCreate() {
