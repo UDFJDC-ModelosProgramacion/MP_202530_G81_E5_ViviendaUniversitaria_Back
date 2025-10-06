@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "estancia")
-public class Estancia extends BaseEntity {
+public class EstanciaEntity extends BaseEntity {
 
     // Muchos registros de Estancia pueden pertenecer al mismo Estudiante
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -28,7 +28,7 @@ public class Estancia extends BaseEntity {
     @OneToOne(mappedBy = "estancia", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private ContratoEntity contrato;
 
-    public Estancia(EstudianteEntity est, Vivienda viv, Integer meses) {
+    public EstanciaEntity(EstudianteEntity est, ViviendaEntity viv, Integer meses) {
         this.estudianteArrendador = est;
         this.viviendaArrendada = viv;
         this.tiempoEstancia = meses;
