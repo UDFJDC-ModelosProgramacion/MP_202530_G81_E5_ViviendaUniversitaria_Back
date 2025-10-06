@@ -8,9 +8,9 @@ import java.util.List;
 @Repository
 public interface NotificacionRepository extends JpaRepository<NotificacionEntity, Long> {
 
-    // Encuentra todas las NotificacionEntityes para un usuario específico.
-    List<NotificacionEntity> findByUsuarioId(Long usuarioId);
+    // Encuentra todas las NotificacionEntityes para un estudiante específico (por id).
+    List<NotificacionEntity> findByEstudiante_Id(Long estudianteId);
 
-    // Busca NotificacionEntityes no leídas de un usuario.
-    List<NotificacionEntity> findByUsuarioIdAndLeidaIsFalse(Long usuarioId);
+    // Busca NotificacionEntityes no leídas de un estudiante (por id).
+    List<NotificacionEntity> findByEstudiante_IdAndLeidaIsFalse(Long estudianteId);
 }   

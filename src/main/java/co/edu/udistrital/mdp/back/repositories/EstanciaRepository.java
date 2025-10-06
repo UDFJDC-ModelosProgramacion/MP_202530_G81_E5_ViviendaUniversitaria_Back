@@ -11,7 +11,7 @@ import java.util.List;
 public interface EstanciaRepository extends JpaRepository<EstanciaEntity, Long> {
 
     // Buscar EstanciaEntitys por duración
-    List<EstanciaEntity> findByTiempoEstanciaEntity(Integer tiempoEstanciaEntity);
+    List<EstanciaEntity> findByTiempoEstancia(Integer tiempoEstancia);
 
     // Buscar EstanciaEntitys por id de estudiante
     List<EstanciaEntity> findByEstudianteArrendador_Id(Long estudianteId);
