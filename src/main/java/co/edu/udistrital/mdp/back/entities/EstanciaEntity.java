@@ -8,39 +8,39 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "estancia")
-public class Estancia {
+public class EstanciaEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id", nullable = false)
-    private Estudiante estudianteArrendador;
+    private EstudianteEntity estudianteArrendador;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Vivienda viviendaArrendada;
+    private ViviendaEntity viviendaArrendada;
 
     @Column(nullable = false)
     private Integer tiempoEstancia;
 
     @OneToOne(mappedBy = "estancia", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Contrato contrato;
+    private ContratoEntity contrato;
 
-    public Estancia() {}
-    public Estancia(Estudiante est, Vivienda viv, Integer meses) {
+    public EstanciaEntity() {}
+    public EstanciaEntity(EstudianteEntity est, ViviendaEntity viv, Integer meses) {
         this.estudianteArrendador = est; this.viviendaArrendada = viv; this.tiempoEstancia = meses;
     }
 
     public Long getId() { return id; }
-    public Estudiante getEstudianteArrendador() { return estudianteArrendador; }
-    public void setEstudianteArrendador(Estudiante e) { this.estudianteArrendador = e; }
-    public Vivienda getViviendaArrendada() { return viviendaArrendada; }
-    public void setViviendaArrendada(Vivienda v) { this.viviendaArrendada = v; }
+    public EstudianteEntity getEstudianteArrendador() { return estudianteArrendador; }
+    public void setEstudianteArrendador(EstudianteEntity e) { this.estudianteArrendador = e; }
+    public ViviendaEntity getViviendaArrendada() { return viviendaArrendada; }
+    public void setViviendaArrendada(ViviendaEntity v) { this.viviendaArrendada = v; }
     public Integer getTiempoEstancia() { return tiempoEstancia; }
     public void setTiempoEstancia(Integer t) { this.tiempoEstancia = t; }
-    public Contrato getContrato() { return contrato; }
+    public ContratoEntity getContrato() { return contrato; }
 
-    @Override public boolean equals(Object o){ return o instanceof Estancia e && id!=null && id.equals(e.id); }
+    @Override public boolean equals(Object o){ return o instanceof EstanciaEntity e && id!=null && id.equals(e.id); }
     @Override public int hashCode(){ return Objects.hashCode(id); }
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "sitio_interes")
-public class SitioInteres {
+public class SitioInteresEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,13 +16,13 @@ public class SitioInteres {
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Vivienda vivienda;
+    private ViviendaEntity vivienda;
 
     // --- Constructores ---
-    public SitioInteres() {
+    public SitioInteresEntity() {
     }
 
-    public SitioInteres(String nombre, String ubicacion, int tiempoCaminando, Vivienda vivienda) {
+    public SitioInteresEntity(String nombre, String ubicacion, int tiempoCaminando, ViviendaEntity vivienda) {
         this.nombre = nombre;
         this.ubicacion = ubicacion;
         this.tiempoCaminando = tiempoCaminando;
@@ -62,11 +62,11 @@ public class SitioInteres {
         this.tiempoCaminando = tiempoCaminando;
     }
 
-    public Vivienda getVivienda() {
+    public ViviendaEntity getVivienda() {
         return vivienda;
     }
 
-    public void setVivienda(Vivienda vivienda) {
+    public void setVivienda(ViviendaEntity vivienda) {
         this.vivienda = vivienda;
     }
 }

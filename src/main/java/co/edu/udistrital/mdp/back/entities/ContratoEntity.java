@@ -7,7 +7,7 @@ import java.util.Objects;
 /** Contrato 1..1 con Estancia. Este lado es el dueño y guarda la FK única. */
 @Entity
 @Table(name = "contrato")
-public class Contrato {
+public class ContratoEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +21,10 @@ public class Contrato {
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "estancia_id", nullable = false, unique = true)
-    private Estancia estancia;
+    private EstanciaEntity estancia;
 
-    public Contrato() {}
-    public Contrato(String codigo, LocalDate inicio, LocalDate fin, Double montoTotal, Estancia estancia) {
+    public ContratoEntity() {}
+    public ContratoEntity(String codigo, LocalDate inicio, LocalDate fin, Double montoTotal, EstanciaEntity estancia) {
         this.codigo = codigo; this.fechaInicio = inicio; this.fechaFin = fin; this.montoTotal = montoTotal; this.estancia = estancia;
     }
 
@@ -37,9 +37,9 @@ public class Contrato {
     public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
     public Double getMontoTotal() { return montoTotal; }
     public void setMontoTotal(Double montoTotal) { this.montoTotal = montoTotal; }
-    public Estancia getEstancia() { return estancia; }
-    public void setEstancia(Estancia estancia) { this.estancia = estancia; }
+    public EstanciaEntity getEstancia() { return estancia; }
+    public void setEstancia(EstanciaEntity estancia) { this.estancia = estancia; }
 
-    @Override public boolean equals(Object o){ return o instanceof Contrato c && id!=null && id.equals(c.id); }
+    @Override public boolean equals(Object o){ return o instanceof ContratoEntity c && id!=null && id.equals(c.id); }
     @Override public int hashCode(){ return Objects.hashCode(id); }
 }

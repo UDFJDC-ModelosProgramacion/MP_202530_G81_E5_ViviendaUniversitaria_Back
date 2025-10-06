@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "reserva")
-public class Reserva {
+public class ReservaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,17 +17,17 @@ public class Reserva {
 
     @ManyToOne
     @JoinColumn(name = "estudiante_id", nullable = false)
-    private Estudiante estudiante;
+    private EstudianteEntity estudiante;
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Vivienda vivienda;
+    private ViviendaEntity vivienda;
 
     // --- Constructores ---
-    public Reserva() {
+    public ReservaEntity() {
     }
 
-    public Reserva(LocalDate fechaInicio, LocalDate fechaFin, String estado, Estudiante estudiante, Vivienda vivienda) {
+    public ReservaEntity(LocalDate fechaInicio, LocalDate fechaFin, String estado, EstudianteEntity estudiante, ViviendaEntity vivienda) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.estado = estado;
@@ -68,19 +68,19 @@ public class Reserva {
         this.estado = estado;
     }
 
-    public Estudiante getEstudiante() {
+    public EstudianteEntity getEstudiante() {
         return estudiante;
     }
 
-    public void setEstudiante(Estudiante estudiante) {
+    public void setEstudiante(EstudianteEntity estudiante) {
         this.estudiante = estudiante;
     }
 
-    public Vivienda getVivienda() {
+    public ViviendaEntity getVivienda() {
         return vivienda;
     }
 
-    public void setVivienda(Vivienda vivienda) {
+    public void setVivienda(ViviendaEntity vivienda) {
         this.vivienda = vivienda;
     }
 }
