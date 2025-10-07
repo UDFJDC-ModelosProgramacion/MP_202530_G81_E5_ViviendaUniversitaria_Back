@@ -10,12 +10,12 @@ import java.util.List;
 @Repository
 public interface ContratoRepository extends JpaRepository<ContratoEntity, Long> {
 
-    // Buscar ContratoEntity por código
+    // Buscar contrato por código
     Optional<ContratoEntity> findByCodigo(String codigo);
 
-    // Buscar ContratoEntitys por monto mayor a cierto valor
+    // Buscar contratos por monto mayor a cierto valor
     List<ContratoEntity> findByMontoTotalGreaterThan(Double monto);
 
-    // Buscar ContratoEntitys que terminen en una fecha específica
+    // Buscar contratos que terminen en una fecha específica
     List<ContratoEntity> findByFechaFin(java.time.LocalDate fechaFin);
 }
