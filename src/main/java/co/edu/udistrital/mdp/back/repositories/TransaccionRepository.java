@@ -8,9 +8,9 @@ import java.util.List;
 @Repository
 public interface TransaccionRepository extends JpaRepository<TransaccionEntity, Long> {
 
-    // Recupera todas las TransaccionEntityes asociadas a una estancia.
+    // Recupera todas las transacciones asociadas a una estancia.
     List<TransaccionEntity> findByEstanciaId(Long estanciaId);
 
-    // Busca TransaccionEntityes por su estado (ej: "Completada", "Pendiente").
+    // Busca transacciones por su estado (ej: "Completada", "Pendiente").
     List<TransaccionEntity> findByEstado(String estado);
 }

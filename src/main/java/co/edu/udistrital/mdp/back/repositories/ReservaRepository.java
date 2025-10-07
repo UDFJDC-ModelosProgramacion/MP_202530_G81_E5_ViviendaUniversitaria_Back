@@ -10,15 +10,15 @@ import java.util.List;
 @Repository
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Long> {
 
-    // Buscar ReservaEntitys por estado (Pendiente, Confirmada, Cancelada)
+    // Buscar reservas por estado (Pendiente, Confirmada, Cancelada)
     List<ReservaEntity> findByEstado(String estado);
 
-    // Buscar ReservaEntitys de un estudiante
+    // Buscar reservas de un estudiante
     List<ReservaEntity> findByEstudianteId(Long estudianteId);
 
-    // Buscar ReservaEntitys de una vivienda
+    // Buscar reservas de una vivienda
     List<ReservaEntity> findByViviendaId(Long viviendaId);
 
-    // Buscar ReservaEntitys activas en una fecha
+    // Buscar reservas activas en una fecha
     List<ReservaEntity> findByFechaInicioBeforeAndFechaFinAfter(LocalDate fecha, LocalDate fecha2);
 }

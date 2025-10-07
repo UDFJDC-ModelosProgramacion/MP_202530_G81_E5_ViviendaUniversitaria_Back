@@ -61,6 +61,13 @@ public class ViviendaEntity extends BaseEntity {
     @JoinColumn(name = "universidad_cerca_id")
     private UniversidadCercaEntity universidadCerca;
 
+    public void setUniversidadCerca(UniversidadCercaEntity universidadCerca) {
+        this.universidadCerca = universidadCerca;
+    }
+
+    public UniversidadCercaEntity getUniversidadCerca() {
+        return universidadCerca;
+    }                             
     public enum TipoVivienda {
         APARTAMENTO,
         CASA,

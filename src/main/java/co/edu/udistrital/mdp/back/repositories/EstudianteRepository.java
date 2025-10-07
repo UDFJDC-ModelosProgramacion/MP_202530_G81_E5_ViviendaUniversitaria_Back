@@ -10,12 +10,12 @@ import java.util.List;
 @Repository
 public interface EstudianteRepository extends JpaRepository<EstudianteEntity, Long> {
 
-    // Buscar EstudianteEntity por correo
+    // Buscar estudiante por correo
     EstudianteEntity findByCorreo(String correo);
 
-    // Buscar EstudianteEntitys por universidad
+    // Buscar estudiantes por universidad
     List<EstudianteEntity> findByUniversidad(String universidad);
 
-    // Buscar EstudianteEntitys cuyo nombre contenga texto
+    // Buscar estudiantes cuyo nombre contenga texto
     List<EstudianteEntity> findByNombreContaining(String nombre);
 }
