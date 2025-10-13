@@ -23,5 +23,5 @@ public interface PropietarioEntityRepository extends JpaRepository<PropietarioEn
     boolean existsByEmail(String email);
 
     // Busca PropietarioEntitys por nombre o apellido (búsqueda parcial)
-    List<PropietarioEntity> findByNombreOApellido(String nombre, String apellido);
+    List<PropietarioEntity> findByNombreOrApellido(String nombre, String apellido);
 }
