@@ -16,6 +16,8 @@ public interface ComentarioRepository extends JpaRepository<ComentarioEntity, Lo
     // Busca ComentarioEntitys de un estudiante
     List<ComentarioEntity> findByAutorId(Long autorId);
 
+    List<ComentarioEntity> findByViviendaIdOrderByFechaCreacionDesc(Long viviendaId);
+
     // Verifica si un estudiante ya comentó una vivienda
     boolean existsByViviendaIdAndAutorId(Long viviendaId, Long autorId);
 

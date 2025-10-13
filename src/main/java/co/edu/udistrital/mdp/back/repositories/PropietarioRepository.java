@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
-public interface PropietarioEntityRepository extends JpaRepository<PropietarioEntity, Long> {
+public interface PropietarioRepository extends JpaRepository<PropietarioEntity, Long> {
 
     // Busca un PropietarioEntity por documento
     Optional<PropietarioEntity> findByDocumento(String documento);

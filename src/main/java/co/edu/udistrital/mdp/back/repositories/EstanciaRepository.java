@@ -18,4 +18,6 @@ public interface EstanciaRepository extends JpaRepository<EstanciaEntity, Long> 
 
     // Buscar EstanciaEntitys por id de la vivienda
     List<EstanciaEntity> findByViviendaArrendada_Id(Long viviendaId);
+
+    Boolean existsByEstudianteIdAndViviendaIdAndEstadoCompletada(Long estudianteId, Long viviendaId);
 }
