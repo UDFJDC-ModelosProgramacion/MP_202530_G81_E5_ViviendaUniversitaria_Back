@@ -12,7 +12,7 @@ import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.back.repositories.PropietarioEntityRepository;
+import co.edu.udistrital.mdp.back.repositories.PropietarioRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PropietarioViviendaService {
 
     @Autowired
-    private PropietarioEntityRepository propietarioRepository;
+    private PropietarioRepository propietarioRepository;
 
     @Autowired
     private ViviendaRepository viviendaRepository;
