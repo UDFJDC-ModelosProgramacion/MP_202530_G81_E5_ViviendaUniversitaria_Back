@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "viviendas")
-public class Universidad extends BaseEntity {
+public class UniversidadEntity extends BaseEntity {
 
     @Column(nullable = false, length = 200)
     private String direccion;
@@ -51,10 +51,10 @@ public class Universidad extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "propietario_id", nullable = false)
-    private Propietario propietario;
+    private PropietarioEntity propietario;
 
     @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL)
-    private List<Multimedia> multimedia = new ArrayList<>();
+    private List<MultimediaEntity> multimedia = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

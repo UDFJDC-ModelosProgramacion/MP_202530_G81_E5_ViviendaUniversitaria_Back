@@ -4,31 +4,31 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Estancia: relaciona Estudiante con Vivienda y tiene un Contrato 1..1.*/
+/** Estancia: relaciona Estudiante con Vivienda y tiene un Contrato 1..1. */
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "estancia")
-public class Estancia extends BaseEntity {
+public class EstanciaEntity extends BaseEntity {
 
     // Muchos registros de Estancia pueden pertenecer al mismo Estudiante
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id", nullable = false)
-    private Estudiante estudianteArrendador;
+    private EstudianteEntity estudianteArrendador;
 
     // Muchas Estancias pueden referirse a la misma Vivienda
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private Vivienda viviendaArrendada;
+    private ViviendaEntity viviendaArrendada;
 
     @Column(nullable = false)
     private Integer tiempoEstancia;
 
     // Relación 1..1 inversa: el dueño está en Contrato
     @OneToOne(mappedBy = "estancia", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Contrato contrato;
+    private ContratoEntity contrato;
 
-    public Estancia(Estudiante est, Vivienda viv, Integer meses) {
+    public EstanciaEntity(EstudianteEntity est, ViviendaEntity viv, Integer meses) {
         this.estudianteArrendador = est;
         this.viviendaArrendada = viv;
         this.tiempoEstancia = meses;
