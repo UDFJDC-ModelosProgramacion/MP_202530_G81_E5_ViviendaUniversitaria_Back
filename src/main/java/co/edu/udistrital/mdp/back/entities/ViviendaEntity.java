@@ -61,6 +61,9 @@ public class ViviendaEntity extends BaseEntity {
     @JoinColumn(name = "universidad_cerca_id")
     private UniversidadCercaEntity universidadCerca;
 
+    @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MultimediaEntity> multimedia = new ArrayList<>();
+
     public void setUniversidadCerca(UniversidadCercaEntity universidadCerca) {
         this.universidadCerca = universidadCerca;
     }

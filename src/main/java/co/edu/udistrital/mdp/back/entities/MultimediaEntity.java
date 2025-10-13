@@ -34,7 +34,7 @@ public class MultimediaEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id", nullable = false)
-    private UniversidadEntity vivienda;
+    private ViviendaEntity vivienda;
 
     @PrePersist
     protected void onCreate() {
