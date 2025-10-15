@@ -1,66 +1,113 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
+import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
+import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
+import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
+import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
- * Servicio que contiene la lógica de negocio para la entidad SitioInteres.
+ * Clase que implementa la lógica de negocio para la entidad SitioInteres.
+ * Gestiona la relación ManyToMany con Vivienda según las reglas definidas.
  */
 @Slf4j
 @Service
 public class SitioInteresService {
 
     @Autowired
-    private SitioInteresRepository sitioRepository;
+    private SitioInteresRepository sitioInteresRepository;
 
-    /** Crear un nuevo sitio de interés */
-    public SitioInteresEntity createSitio(SitioInteresEntity sitio) throws Exception {
-        log.info("Iniciando creación de sitio de interés...");
+    @Autowired
+    private ViviendaRepository viviendaRepository;
+
+    /**
+     * [1] Crea un nuevo sitio de interés validando sus atributos.
+     */
+    @Transactional
+    public SitioInteresEntity createSitioInteres(SitioInteresEntity sitio) throws IllegalOperationException {
+        log.info("Inicia proceso de creación del sitio de interés '{}'", sitio.getNombre());
 
         if (sitio.getNombre() == null || sitio.getNombre().isBlank()) {
-            throw new Exception("El nombre del sitio no puede ser nulo ni vacío.");
+            throw new IllegalOperationException("El nombre del sitio no puede ser nulo ni vacío.");
         }
 
         if (sitio.getUbicacion() == null || sitio.getUbicacion().isBlank()) {
-            throw new Exception("La ubicación es obligatoria.");
+            throw new IllegalOperationException("La ubicación es obligatoria.");
         }
 
         if (sitio.getTiempoCaminando() == null || sitio.getTiempoCaminando() <= 0) {
-            throw new Exception("El tiempo caminando debe ser un número positivo.");
+            throw new IllegalOperationException("El tiempo caminando debe ser positivo.");
         }
 
-        log.info("Sitio de interés '{}' creado correctamente.", sitio.getNombre());
-        return sitioRepository.save(sitio);
+        SitioInteresEntity nuevo = sitioInteresRepository.save(sitio);
+        log.info("Sitio de interés '{}' creado correctamente con id = {}", nuevo.getNombre(), nuevo.getId());
+        return nuevo;
     }
 
-    /** Consultar todos los sitios de interés */
+    /**
+     * [2] Asocia un sitio de interés a una vivienda (ManyToMany).
+     */
+    @Transactional
+    public SitioInteresEntity addVivienda(Long sitioId, Long viviendaId)
+            throws EntityNotFoundException, IllegalOperationException {
+        log.info("Inicia proceso de asociación Vivienda {} → SitioInteres {}", viviendaId, sitioId);
+
+        SitioInteresEntity sitio = sitioInteresRepository.findById(sitioId)
+                .orElseThrow(() -> new EntityNotFoundException("Sitio de interés no encontrado."));
+
+        ViviendaEntity vivienda = viviendaRepository.findById(viviendaId)
+                .orElseThrow(() -> new EntityNotFoundException("Vivienda no encontrada."));
+
+        if (sitio.getViviendas().contains(vivienda)) {
+            throw new IllegalOperationException("La vivienda ya está asociada a este sitio de interés.");
+        }
+
+        sitio.getViviendas().add(vivienda);
+        vivienda.getSitiosInteres().add(sitio);
+
+        log.info("Vivienda {} asociada correctamente al sitio de interés {}", viviendaId, sitioId);
+        return sitioInteresRepository.save(sitio);
+    }
+
+    /**
+     * [3] Desasocia una vivienda de un sitio de interés.
+     */
+    @Transactional
+    public SitioInteresEntity removeVivienda(Long sitioId, Long viviendaId)
+            throws EntityNotFoundException, IllegalOperationException {
+        log.info("Inicia proceso de eliminación de asociación Vivienda {} → SitioInteres {}", viviendaId, sitioId);
+
+        SitioInteresEntity sitio = sitioInteresRepository.findById(sitioId)
+                .orElseThrow(() -> new EntityNotFoundException("Sitio de interés no encontrado."));
+
+        ViviendaEntity vivienda = viviendaRepository.findById(viviendaId)
+                .orElseThrow(() -> new EntityNotFoundException("Vivienda no encontrada."));
+
+        if (!sitio.getViviendas().contains(vivienda)) {
+            throw new IllegalOperationException("La vivienda no está asociada a este sitio.");
+        }
+
+        sitio.getViviendas().remove(vivienda);
+        vivienda.getSitiosInteres().remove(sitio);
+
+        log.info("Asociación Vivienda {} → SitioInteres {} eliminada correctamente", viviendaId, sitioId);
+        return sitioInteresRepository.save(sitio);
+    }
+
+    /**
+     * [4] Consulta todos los sitios registrados.
+     */
+    @Transactional
     public List<SitioInteresEntity> getSitios() {
-        log.info("Consultando todos los sitios de interés...");
-        return sitioRepository.findAll();
-    }
-
-    /** Actualizar campos permitidos (foto y tiempoCaminando) */
-    public SitioInteresEntity updateSitio(Long id, SitioInteresEntity nuevo) throws Exception {
-        SitioInteresEntity existente = sitioRepository.findById(id)
-                .orElseThrow(() -> new Exception("El sitio no existe."));
-
-        existente.setFoto(nuevo.getFoto());
-        existente.setTiempoCaminando(nuevo.getTiempoCaminando());
-
-        log.info("Sitio de interés '{}' actualizado correctamente.", existente.getNombre());
-        return sitioRepository.save(existente);
-    }
-
-    /** Eliminar un sitio de interés */
-    public void deleteSitio(Long id) throws Exception {
-        SitioInteresEntity sitio = sitioRepository.findById(id)
-                .orElseThrow(() -> new Exception("El sitio no existe."));
-
-        log.info("Eliminando sitio de interés '{}'", sitio.getNombre());
-        sitioRepository.delete(sitio);
+        log.info("Inicia proceso de consulta de todos los sitios de interés");
+        return sitioInteresRepository.findAll();
     }
 }
