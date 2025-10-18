@@ -1,5 +1,7 @@
 package co.edu.udistrital.mdp.back.entities;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,16 @@ public class EstanciaEntity extends BaseEntity {
     @JoinColumn(name = "vivienda_id", nullable = false)
     private ViviendaEntity viviendaArrendada;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoEstancia estado = EstadoEstancia.ACTIVA;
+
+    @Column(name = "fecha_inicio")
+    private LocalDateTime fechaInicio;
+
+    @Column(name = "fecha_fin")
+    private LocalDateTime fechaFin;
+
     @Column(nullable = false)
     private Integer tiempoEstancia;
 
@@ -32,5 +44,14 @@ public class EstanciaEntity extends BaseEntity {
         this.estudianteArrendador = est;
         this.viviendaArrendada = viv;
         this.tiempoEstancia = meses;
+        this.estado = EstadoEstancia.ACTIVA;
+        this.fechaInicio = LocalDateTime.now();
+    }
+
+    public enum EstadoEstancia {
+        PENDIENTE,
+        ACTIVA,
+        COMPLETADA,
+        CANCELADA
     }
 }
