@@ -1,72 +1,33 @@
 package co.edu.udistrital.mdp.back.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import uk.co.jemos.podam.common.PodamExclude;
 
+/**
+ * Entidad que representa un sitio de interés cercano a una vivienda.
+ * Contiene información de ubicación, imagen y tiempo de llegada a pie.
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "sitio_interes")
-public class SitioInteresEntity {
+public class SitioInteresEntity extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @Column(nullable = false)
     private String nombre;
+
+    @Column(nullable = false)
     private String ubicacion;
-    private int tiempoCaminando; // en minutos
 
+    private String foto;
+
+    @Column(nullable = false)
+    private Integer tiempoCaminando; // en minutos
+
+    @PodamExclude
     @ManyToOne
-    @JoinColumn(name = "vivienda_id", nullable = false)
+    @JoinColumn(name = "vivienda_id")
     private ViviendaEntity vivienda;
-
-    // --- Constructores ---
-    public SitioInteresEntity() {
-    }
-
-    public SitioInteresEntity(String nombre, String ubicacion, int tiempoCaminando, ViviendaEntity vivienda) {
-        this.nombre = nombre;
-        this.ubicacion = ubicacion;
-        this.tiempoCaminando = tiempoCaminando;
-        this.vivienda = vivienda;
-    }
-
-    // --- Getters y Setters ---
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
-    }
-
-    public int getTiempoCaminando() {
-        return tiempoCaminando;
-    }
-
-    public void setTiempoCaminando(int tiempoCaminando) {
-        this.tiempoCaminando = tiempoCaminando;
-    }
-
-    public ViviendaEntity getVivienda() {
-        return vivienda;
-    }
-
-    public void setVivienda(ViviendaEntity vivienda) {
-        this.vivienda = vivienda;
-    }
 }
