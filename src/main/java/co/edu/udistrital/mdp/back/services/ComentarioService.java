@@ -1,8 +1,7 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.ComentarioEntity;
-import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
-import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
+import co.edu.udistrital.mdp.back.entities.EstanciaEntity.EstadoEstancia;
 import co.edu.udistrital.mdp.back.repositories.ComentarioRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
@@ -291,12 +290,9 @@ public class ComentarioService {
      * Regla: La vivienda asociada debe existir y encontrarse activa
      */
     private void validarViviendaExisteYActiva(Long viviendaId) {
-        ViviendaEntity vivienda = viviendaRepository.findById(viviendaId)
+        viviendaRepository.findById(viviendaId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "La vivienda con ID " + viviendaId + " no existe en el sistema"));
-
-        // Puedes agregar validación adicional si tienes un campo "activo" en Vivienda
-        // if (!vivienda.getActivo()) {}
     }
 
     /**
@@ -304,14 +300,9 @@ public class ComentarioService {
      * Regla: El autor (Estudiante) debe existir y estar activo
      */
     private void validarEstudianteExisteYActivo(Long estudianteId) {
-        EstudianteEntity estudiante = estudianteRepository.findById(estudianteId)
+        estudianteRepository.findById(estudianteId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "El estudiante con ID " + estudianteId + " no existe en el sistema"));
-
-        // Puedes agregar validación adicional si tienes un campo "activo" en Estudiante
-        // if (!estudiante.getActivo()) {
-        // throw new IllegalStateException("El estudiante no está activo");
-        // }
     }
 
     /**
@@ -321,7 +312,8 @@ public class ComentarioService {
     private void validarEstanciaCompletada(Long estudianteId, Long viviendaId) {
         // Verificar si existe una estancia completada
         boolean tieneEstanciaCompletada = estanciaRepository
-                .existsByEstudianteIdAndViviendaIdAndEstadoCompletada(estudianteId, viviendaId);
+                .existsByEstudianteArrendador_IdAndViviendaArrendada_IdAndEstado(
+                        estudianteId, viviendaId, EstadoEstancia.COMPLETADA);
 
         if (!tieneEstanciaCompletada) {
             throw new IllegalStateException(
