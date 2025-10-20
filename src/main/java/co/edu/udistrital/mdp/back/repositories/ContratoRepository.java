@@ -18,4 +18,10 @@ public interface ContratoRepository extends JpaRepository<ContratoEntity, Long> 
 
     // Buscar contratos que terminen en una fecha específica
     List<ContratoEntity> findByFechaFin(java.time.LocalDate fechaFin);
+
+    // Verificar existencia por código ignorando mayúsculas/minúsculas
+    boolean existsByCodigoIgnoreCase(String codigo);
+
+    // Verificar si existe contrato asociado a una estancia específica
+    boolean existsByEstancia_Id(Long estanciaId);
 }

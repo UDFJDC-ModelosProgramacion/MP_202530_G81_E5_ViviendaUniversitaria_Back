@@ -3,16 +3,16 @@ package co.edu.udistrital.mdp.back.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "viviendas")
+@Table(name = "universidades")
 public class UniversidadEntity extends BaseEntity {
+
+    @Column(nullable = false, unique = true, length = 200)
+    private String nombre;
 
     @Column(nullable = false, length = 200)
     private String direccion;
@@ -23,44 +23,34 @@ public class UniversidadEntity extends BaseEntity {
     @Column(length = 100)
     private String barrio;
 
-    @Column(name = "numero_habitaciones")
-    private Integer numeroHabitaciones;
+    @Column(length = 15)
+    private String telefono;
 
-    @Column(name = "numero_banos")
-    private Integer numeroBanos;
+    @Column(length = 100)
+    private String email;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal precioMensual;
+    @Column(length = 100)
+    private String rector;
 
-    @Column(length = 1000)
+    @Column(name = "fecha_fundacion")
+    private LocalDate fechaFundacion;
+
+    @Column(name = "tipo_institucion", length = 20)
+    @Enumerated(EnumType.STRING)
+    private TipoInstitucion tipoInstitucion;
+
+    @Column(length = 500)
     private String descripcion;
 
-    @Column(name = "area_metros")
-    private Double areaMetros;
+    @Column(name = "url_logo", length = 500)
+    private String urlLogo;
 
-    private Boolean amoblada;
+    private Double latitud;
 
-    @Column(name = "servicios_incluidos", length = 500)
-    private String serviciosIncluidos;
+    private Double longitud;
 
-    @Column(nullable = false)
-    private Boolean disponible;
-
-    @Column(name = "fecha_publicacion")
-    private LocalDateTime fechaPublicacion;
-
-    @ManyToOne
-    @JoinColumn(name = "propietario_id", nullable = false)
-    private PropietarioEntity propietario;
-
-    @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL)
-    private List<MultimediaEntity> multimedia = new ArrayList<>();
-
-    @PrePersist
-    protected void onCreate() {
-        this.fechaPublicacion = LocalDateTime.now();
-        if (this.disponible == null) {
-            this.disponible = true;
-        }
+    public enum TipoInstitucion {
+        PUBLICA,
+        PRIVADA
     }
 }
