@@ -14,7 +14,7 @@ import co.edu.udistrital.mdp.back.exceptions.ErrorMessage;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.PropietarioRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j; 
 
 @Slf4j
 @Service
@@ -29,7 +29,7 @@ public class PropietarioViviendaService {
     @Transactional
     public ViviendaEntity addVivienda(Long propietarioId, Long viviendaId) throws EntityNotFoundException {
         log.info("Inicia proceso de asociar una vivienda al propietario con id = {}", propietarioId);
-        Optional<PropietarioEntity> propietarioEntity = propietarioRepository.findById(propietarioId);
+        Optional<PropietarioEntity> propietarioEntity = propietarioRepository.findById(propietarioId);  
         Optional<ViviendaEntity> viviendaEntity = viviendaRepository.findById(viviendaId);
 
         if (propietarioEntity.isEmpty())
