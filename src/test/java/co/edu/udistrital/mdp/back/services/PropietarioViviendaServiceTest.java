@@ -53,11 +53,13 @@ class PropietarioViviendaServiceTest {
 
     private void insertData() {
         propietario = factory.manufacturePojo(PropietarioEntity.class);
+        propietario.setViviendas(new ArrayList<>());
         entityManager.persist(propietario);
 
         for (int i = 0; i < 3; i++) {
             ViviendaEntity entity = factory.manufacturePojo(ViviendaEntity.class);
             entity.setPropietario(propietario);
+            entity.setMultimedia(new ArrayList<>());
             entityManager.persist(entity);
             viviendaList.add(entity);
         }
