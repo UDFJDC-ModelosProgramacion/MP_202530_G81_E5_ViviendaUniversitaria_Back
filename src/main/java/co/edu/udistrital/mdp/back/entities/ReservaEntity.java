@@ -30,4 +30,10 @@ public class ReservaEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "estudiante_id", nullable = false)
     private EstudianteEntity estudiante;
+
+    /** Vivienda que se reserva */
+    @PodamExclude
+    @ManyToOne
+    @JoinColumn(name = "vivienda_id", nullable = false)
+    private ViviendaEntity vivienda;
 }
