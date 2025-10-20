@@ -52,6 +52,9 @@ class ViviendaMultimediaServiceTest {
 
     private void insertData() {
         vivienda = factory.manufacturePojo(ViviendaEntity.class);
+        vivienda.setMultimedia(new ArrayList<>());
+        vivienda.setPropietario(null);
+        vivienda.setUniversidadCerca(null);
         entityManager.persist(vivienda);
 
         for (int i = 0; i < 3; i++) {
@@ -64,10 +67,14 @@ class ViviendaMultimediaServiceTest {
 
     @Test
     void testAddMultimedia() throws EntityNotFoundException {
-        ViviendaEntity newVivienda = factory.manufacturePojo(ViviendaEntity.class);
+        ViviendaEntity newVivienda = factory.manufacturePojo(ViviendaEntity.class);     
+        newVivienda.setMultimedia(new ArrayList<>()); 
+        newVivienda.setPropietario(null); 
+        newVivienda.setUniversidadCerca(null);
         entityManager.persist(newVivienda);
 
         MultimediaEntity newMultimedia = factory.manufacturePojo(MultimediaEntity.class);
+        newMultimedia.setVivienda(null);
         entityManager.persist(newMultimedia);
 
         MultimediaEntity response = viviendaMultimediaService.addMultimedia(newVivienda.getId(), newMultimedia.getId());
@@ -110,7 +117,7 @@ class ViviendaMultimediaServiceTest {
     void testGetMultimediaItem() throws EntityNotFoundException, IllegalOperationException {
         MultimediaEntity multimedia = multimediaList.get(0);
         MultimediaEntity response = viviendaMultimediaService.getMultimediaItem(vivienda.getId(), multimedia.getId());
-        
+
         assertNotNull(response);
         assertEquals(multimedia.getId(), response.getId());
     }
