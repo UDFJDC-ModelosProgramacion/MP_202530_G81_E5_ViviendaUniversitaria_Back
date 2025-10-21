@@ -206,12 +206,6 @@ public class ComentarioService {
             throw new IllegalStateException(
                     "La vivienda asociada al comentario ya no existe en el sistema");
         }
-
-        // Validar que no tenga respuestas/interacciones
-        // (Esta regla depende de si tienes implementado un sistema de respuestas)
-        // Por ahora, se asume que esta validación se puede hacer en el futuro
-        validarNoTieneRespuestas(comentarioId);
-
         comentarioRepository.deleteById(comentarioId);
     }
 
@@ -333,22 +327,4 @@ public class ComentarioService {
         }
     }
 
-    /**
-     * Valida que el comentario no tenga respuestas/interacciones
-     * Regla: No se permite eliminar si tiene respuestas de otros usuarios
-     */
-    private void validarNoTieneRespuestas(Long comentarioId) {
-        // Esta validación depende de si implementas un sistema de respuestas
-        // Por ahora, dejamos un placeholder
-
-        // Ejemplo si tuvieras una tabla de respuestas:
-        // if (respuestaRepository.existsByComentarioId(comentarioId)) {
-        // throw new IllegalStateException(
-        // "No se puede eliminar el comentario porque tiene respuestas de otros
-        // usuarios"
-        // );
-        // }
-
-        // Por ahora, permitimos la eliminación
-    }
 }
