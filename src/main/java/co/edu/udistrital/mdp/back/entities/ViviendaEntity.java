@@ -53,14 +53,17 @@ public class ViviendaEntity extends BaseEntity {
     @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComentarioEntity> comentarios = new ArrayList<>();
 
+    @PodamExclude
     @ManyToOne
     @JoinColumn(name = "propietario_id")
     private PropietarioEntity propietario;
 
+    @PodamExclude
     @ManyToOne
     @JoinColumn(name = "universidad_cerca_id")
     private UniversidadCercaEntity universidadCerca;
 
+    @PodamExclude
     @OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MultimediaEntity> multimedia = new ArrayList<>();
 
