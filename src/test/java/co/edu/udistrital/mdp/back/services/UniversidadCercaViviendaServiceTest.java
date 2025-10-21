@@ -51,16 +51,21 @@ class UniversidadCercaViviendaServiceTest {
     }
 
     private void insertData() {
-        universidadCerca = factory.manufacturePojo(UniversidadCercaEntity.class);
-        entityManager.persist(universidadCerca);
+    universidadCerca = factory.manufacturePojo(UniversidadCercaEntity.class);
+    universidadCerca.setViviendas(new ArrayList<>());
+    entityManager.persist(universidadCerca);
 
-        for (int i = 0; i < 3; i++) {
-            ViviendaEntity entity = factory.manufacturePojo(ViviendaEntity.class);
-            entity.setUniversidadCerca(universidadCerca);
-            entityManager.persist(entity);
-            viviendaList.add(entity);
-        }
+    for (int i = 0; i < 3; i++) {
+        ViviendaEntity entity = factory.manufacturePojo(ViviendaEntity.class);
+        entity.setMultimedia(new ArrayList<>());
+        entity.setServicios(new ArrayList<>());
+        entity.setComentarios(new ArrayList<>());
+        entity.setUniversidadCerca(universidadCerca);
+        entity.setPropietario(null);
+        entityManager.persist(entity);
+        viviendaList.add(entity);
     }
+}
 
     @Test
     void testAddVivienda() throws EntityNotFoundException {
