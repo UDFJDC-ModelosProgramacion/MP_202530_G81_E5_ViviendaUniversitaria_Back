@@ -15,4 +15,5 @@ public class ViviendaDTO {
     private Double areaMetrosCuadrados;
     private Boolean disponible;
     private String tipo;
+    private Long propietarioId;
 }
