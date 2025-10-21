@@ -125,7 +125,7 @@ void testAddMultimedia() throws EntityNotFoundException {
     void testGetMultimediaItem() throws EntityNotFoundException, IllegalOperationException {
         MultimediaEntity multimedia = multimediaList.get(0);
         MultimediaEntity response = viviendaMultimediaService.getMultimediaItem(vivienda.getId(), multimedia.getId());
-        
+
         assertNotNull(response);
         assertEquals(multimedia.getId(), response.getId());
     }
