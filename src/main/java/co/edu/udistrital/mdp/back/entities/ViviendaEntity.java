@@ -73,7 +73,8 @@ public class ViviendaEntity extends BaseEntity {
 
     public UniversidadCercaEntity getUniversidadCerca() {
         return universidadCerca;
-    }                             
+    }
+
     public enum TipoVivienda {
         APARTAMENTO,
         CASA,
