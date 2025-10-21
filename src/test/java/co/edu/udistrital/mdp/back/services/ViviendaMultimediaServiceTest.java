@@ -51,31 +51,44 @@ class ViviendaMultimediaServiceTest {
     }
 
     private void insertData() {
-        vivienda = factory.manufacturePojo(ViviendaEntity.class);
-        entityManager.persist(vivienda);
+    vivienda = factory.manufacturePojo(ViviendaEntity.class);
+    vivienda.setMultimedia(new ArrayList<>());
+    vivienda.setServicios(new ArrayList<>());
+    vivienda.setComentarios(new ArrayList<>());
+    vivienda.setPropietario(null);
+    vivienda.setUniversidadCerca(null);
+    entityManager.persist(vivienda);
 
-        for (int i = 0; i < 3; i++) {
-            MultimediaEntity entity = factory.manufacturePojo(MultimediaEntity.class);
-            entity.setVivienda(vivienda);
-            entityManager.persist(entity);
-            multimediaList.add(entity);
-        }
+    for (int i = 0; i < 3; i++) {
+        MultimediaEntity entity = factory.manufacturePojo(MultimediaEntity.class);
+        entity.setVivienda(vivienda);
+        entityManager.persist(entity);
+        multimediaList.add(entity);
     }
+}
 
     @Test
-    void testAddMultimedia() throws EntityNotFoundException {
-        ViviendaEntity newVivienda = factory.manufacturePojo(ViviendaEntity.class);
-        entityManager.persist(newVivienda);
+void testAddMultimedia() throws EntityNotFoundException {
+    ViviendaEntity newVivienda = factory.manufacturePojo(ViviendaEntity.class);
+    newVivienda.setMultimedia(new ArrayList<>());
+    newVivienda.setServicios(new ArrayList<>());
+    newVivienda.setComentarios(new ArrayList<>());
+    newVivienda.setPropietario(null);
+    newVivienda.setUniversidadCerca(null);
+    entityManager.persist(newVivienda);
+    entityManager.flush();
 
-        MultimediaEntity newMultimedia = factory.manufacturePojo(MultimediaEntity.class);
-        entityManager.persist(newMultimedia);
+    MultimediaEntity newMultimedia = factory.manufacturePojo(MultimediaEntity.class);
+    newMultimedia.setVivienda(null);
+    entityManager.persist(newMultimedia);
+    entityManager.flush();
 
-        MultimediaEntity response = viviendaMultimediaService.addMultimedia(newVivienda.getId(), newMultimedia.getId());
+    MultimediaEntity response = viviendaMultimediaService.addMultimedia(newVivienda.getId(), newMultimedia.getId());
 
-        assertNotNull(response);
-        assertEquals(newMultimedia.getId(), response.getId());
-        assertEquals(newVivienda.getId(), response.getVivienda().getId());
-    }
+    assertNotNull(response);
+    assertEquals(newMultimedia.getId(), response.getId());
+    assertEquals(newVivienda.getId(), response.getVivienda().getId());
+}
 
     @Test
     void testAddMultimediaInvalidVivienda() {
