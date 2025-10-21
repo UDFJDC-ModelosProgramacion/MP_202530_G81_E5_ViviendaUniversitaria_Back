@@ -65,7 +65,9 @@ class PropietarioViviendaServiceTest {
         entity.setUniversidadCerca(null);
         entityManager.persist(entity);
         viviendaList.add(entity);
+        propietario.getViviendas().add(entity);
     }
+    entityManager.flush();
 }
 
     @Test
