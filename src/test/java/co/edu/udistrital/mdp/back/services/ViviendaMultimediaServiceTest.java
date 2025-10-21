@@ -64,7 +64,9 @@ class ViviendaMultimediaServiceTest {
         entity.setVivienda(vivienda);
         entityManager.persist(entity);
         multimediaList.add(entity);
+        vivienda.getMultimedia().add(entity);
     }
+    entityManager.flush();
 }
 
     @Test
