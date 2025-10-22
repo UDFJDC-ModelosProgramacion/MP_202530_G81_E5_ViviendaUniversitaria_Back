@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +38,8 @@ public class PropietarioService {
     public List<PropietarioDTO> getPropietarios() {
         List<PropietarioEntity> propietarios = propietarioRepository.findAll();
         return propietarios.stream()
-                .map(propietario -> modelMapper.map(propietario, PropietarioDTO.class))
-                .collect(Collectors.toList());
+            .map(propietario -> modelMapper.map(propietario, PropietarioDTO.class))
+            .toList();
     }
 
     public PropietarioDTO updatePropietario(Long id, PropietarioDTO propietarioDTO) throws EntityNotFoundException {

@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/viviendas/{viviendaId}/multimedia")
@@ -36,7 +36,7 @@ public class ViviendaMultimediaController {
         List<MultimediaEntity> multimediaList = viviendaMultimediaService.getMultimedia(viviendaId);
         return multimediaList.stream()
                 .map(multimedia -> modelMapper.map(multimedia, MultimediaDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/{multimediaId}")
