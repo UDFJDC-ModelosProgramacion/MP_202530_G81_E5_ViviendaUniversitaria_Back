@@ -1,7 +1,7 @@
 package co.edu.udistrital.mdp.back.controllers;
 
 import co.edu.udistrital.mdp.back.dto.ViviendaDTO;
-//import co.edu.udistrital.mdp.back.dto.ViviendaDetailDTO; aun no está implementado
+import co.edu.udistrital.mdp.back.dto.ViviendaDetailDTO;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.services.ViviendaService;
@@ -39,24 +39,16 @@ public class ViviendaController {
         }.getType());
     }
 
-    /*
-     * Falta implementar los detailDTO para vivienda
-     * GET /viviendas/{id}
-     * Obtiene una vivienda por ID
-     *
-     * @GetMapping(value = "/{id}")
-     * 
-     * @ResponseStatus(code = HttpStatus.OK)
-     * public ViviendaDetailDTO findOne(@PathVariable("id") Long id) throws
-     * EntityNotFoundException {
-     * try {
-     * ViviendaEntity vivienda = viviendaService.obtenerViviendaPorId(id);
-     * return modelMapper.map(vivienda, ViviendaDetailDTO.class);
-     * } catch (IllegalArgumentException e) {
-     * throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
-     * }
-     * }
-     */
+    @GetMapping(value = "/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ViviendaDetailDTO findOne(@PathVariable("id") Long id) throws EntityNotFoundException {
+        try {
+            ViviendaEntity vivienda = viviendaService.obtenerViviendaPorId(id);
+            return modelMapper.map(vivienda, ViviendaDetailDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
+        }
+    }
 
     /**
      * GET /viviendas/ciudad/{ciudad}
