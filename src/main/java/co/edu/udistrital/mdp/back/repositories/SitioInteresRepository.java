@@ -10,12 +10,12 @@ import java.util.List;
 @Repository
 public interface SitioInteresRepository extends JpaRepository<SitioInteresEntity, Long> {
 
-    // Buscar sitios de interés por nombre (contiene texto)
+    // Buscar sitios cuyo nombre contenga una cadena
     List<SitioInteresEntity> findByNombreContaining(String nombre);
 
-    // Buscar sitios de interés de una vivienda específica
-    List<SitioInteresEntity> findByViviendaId(Long viviendaId);
+    // Buscar sitios por vivienda (relación many-to-many)
+    List<SitioInteresEntity> findByViviendas_Id(Long viviendaId);
 
-    // Buscar sitios de interés por tiempo máximo caminando
+    // Buscar sitios con tiempo caminando <= minutos
     List<SitioInteresEntity> findByTiempoCaminandoLessThanEqual(int minutos);
 }
