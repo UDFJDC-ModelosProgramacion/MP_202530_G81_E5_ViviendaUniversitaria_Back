@@ -1,0 +1,255 @@
+{
+	"info": {
+		"_postman_id": "c5dc474a-964d-4068-988f-cb4fac72ff00",
+		"name": "ViviendaMultimedia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49062567",
+		"_collection_link": "https://tomiguts-3484491.postman.co/workspace/Tomas-Gutierrez's-Workspace~5ea84637-3dbd-497a-8959-c43cb3accb6e/collection/49062567-c5dc474a-964d-4068-988f-cb4fac72ff00?action=share&source=collection_link&creator=49062567"
+	},
+	"item": [
+		{
+			"name": "Crear Multimedia para Vivienda",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"titulo\": \"Foto de la habitación\",\r\n    \"descripcion\": \"Habitación principal con vista exterior.\",\r\n    \"tipoArchivo\": \"imagen\",\r\n    \"urlArchivo\": \"https://example.com/img/hab1.jpg\",\r\n    \"ordenVisualizacion\": 1,\r\n    \"esPortada\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"viviendas",
+						"{{vivienda_id}}",
+						"multimedia"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Crear Multimedia para Vivienda",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 201,\r\n  \"titulo\": \"Foto de la habitación\",\r\n  \"descripcion\": \"Habitación principal con vista exterior.\",\r\n  \"tipoArchivo\": \"imagen\",\r\n  \"urlArchivo\": \"https://example.com/img/hab1.jpg\",\r\n  \"ordenVisualizacion\": 1,\r\n  \"esPortada\": true,\r\n  \"fechaSubida\": \"2025-10-22T00:10:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"viviendas",
+								"{{vivienda_id}}",
+								"multimedia"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Obtener todos los Multimedia de una Vivienda",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"viviendas",
+						"{{vivienda_id}}",
+						"multimedia"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener todos los Multimedia de una Vivienda",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"id\": 201,\r\n    \"titulo\": \"Foto Sala\",\r\n    \"descripcion\": \"Vista de la sala principal\",\r\n    \"tipoArchivo\": \"imagen\",\r\n    \"urlArchivo\": \"/uploads/vivienda_101/sala.jpg\",\r\n    \"ordenVisualizacion\": 1,\r\n    \"esPortada\": true,\r\n    \"fechaSubida\": \"2025-10-22T00:05:15\"\r\n  },\r\n  {\r\n    \"id\": 202,\r\n    \"titulo\": \"Foto Cocina\",\r\n    \"descripcion\": \"Cocina integral remodelada\",\r\n    \"tipoArchivo\": \"imagen\",\r\n    \"urlArchivo\": \"/uploads/vivienda_101/cocina.jpg\",\r\n    \"ordenVisualizacion\": 2,\r\n    \"esPortada\": false,\r\n    \"fechaSubida\": \"2025-10-22T00:08:30\"\r\n  }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"viviendas",
+								"{{vivienda_id}}",
+								"multimedia"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Obtener Multimedia que no existe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"viviendas",
+						"{{vivienda_id}}",
+						"multimedia",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener Multimedia que no existe",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apiError\": {\r\n        \"status\": \"NOT_FOUND\",\r\n        \"timestamp\": \"19-10-2025 09:50:00\",\r\n        \"message\": \"El archivo multimedia no existe\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"viviendas",
+								"{{vivienda_id}}",
+								"multimedia",
+								"0"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Borrar un Multimedia",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia/{{multimedia_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"viviendas",
+						"{{vivienda_id}}",
+						"multimedia",
+						"{{multimedia_id}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Borrar un Multimedia",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/viviendas/{{vivienda_id}}/multimedia/{{multimedia_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"viviendas",
+								"{{vivienda_id}}",
+								"multimedia",
+								"{{multimedia_id}}"
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	]
+}
