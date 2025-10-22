@@ -1,0 +1,320 @@
+{
+	"info": {
+		"_postman_id": "bbefea89-d037-4522-9a2b-7df29ef42b84",
+		"name": "Propietario",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49062567",
+		"_collection_link": "https://tomiguts-3484491.postman.co/workspace/Tomas-Gutierrez's-Workspace~5ea84637-3dbd-497a-8959-c43cb3accb6e/collection/49062567-bbefea89-d037-4522-9a2b-7df29ef42b84?action=share&source=collection_link&creator=49062567"
+	},
+	"item": [
+		{
+			"name": "Crear un Propietario",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parsea la respuesta que viene en formato JSON\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"// Guarda el valor del campo \"id\" de la respuesta\r",
+							"// en la variable de entorno \"propietario_id\"\r",
+							"pm.environment.set(\"propietario_id\", jsonData.id);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nombre\": \"Carlos\",\r\n    \"apellido\": \"Gómez\",\r\n    \"documento\": \"1022345678\",\r\n    \"tipoDocumento\": \"CC\",\r\n    \"telefono\": \"3101234567\",\r\n    \"email\": \"carlos.gomez@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/propietarios",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener un Propietario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Propietario que no existe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener Propietario que no existe",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apiError\": {\r\n        \"status\": \"NOT_FOUND\",\r\n        \"timestamp\": \"19-10-2025 09:30:00\", \r\n        \"message\": \"El propietario no existe\" \r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"0"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Actualizar un Propietario",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nombre\": \"Carlos\",\r\n    \"apellido\": \"Gómez\",\r\n    \"documento\": \"1022345678\", // Generalmente no se cambia\r\n    \"tipoDocumento\": \"CC\",\r\n    \"telefono\": \"3209876543\", // <-- El campo modificado\r\n    \"email\": \"carlos.gomez@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Actualizar un Propietario",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1, // O el ID que corresponda\r\n    \"nombre\": \"Carlos\",\r\n    \"apellido\": \"Gómez\",\r\n    \"documento\": \"1022345678\",\r\n    \"tipoDocumento\": \"CC\",\r\n    \"telefono\": \"3209876543\", // <-- Muestra el cambio\r\n    \"email\": \"carlos.gomez@example.com\",\r\n    \"fechaRegistro\": \"2025-10-19T10:30:00\" // La fecha de registro no cambia\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				},
+				{
+					"name": "Actualizar un Propietario que no existe",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apiError\": {\r\n        \"status\": \"NOT_FOUND\",\r\n        \"timestamp\": \"19-10-2025 09:30:00\",\r\n        \"message\": \"El propietario no existe\" //\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Borrar un Propietario",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Borrar un Propietario",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}"
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				},
+				{
+					"name": "Borrar un Propietario que no existe",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apiError\": {\r\n        \"status\": \"NOT_FOUND\",\r\n        \"timestamp\": \"19-10-2025 09:35:00\",\r\n        \"message\": \"El propietario no existe\" //\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	]
+}
