@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "693b4a6d-a418-4775-bd71-4a1ce3eb615d",
+		"name": "PropietarioVivienda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49062567",
+		"_collection_link": "https://tomiguts-3484491.postman.co/workspace/Tomas-Gutierrez's-Workspace~5ea84637-3dbd-497a-8959-c43cb3accb6e/collection/49062567-693b4a6d-a418-4775-bd71-4a1ce3eb615d?action=share&source=collection_link&creator=49062567"
+	},
+	"item": [
+		{
+			"name": "Obtener Viviendas de un Propietario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}",
+						"viviendas"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener Viviendas de un Propietario",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"id\": 101,\r\n    \"direccion\": \"Calle Falsa 123\",\r\n    \"ciudad\": \"Bogotá D.C.\",\r\n    \"barrio\": \"Chapinero\",\r\n    \"precioMensual\": 1200000.00,\r\n    \"descripcion\": \"Apartamento acogedor\",\r\n    \"numeroHabitaciones\": 2,\r\n    \"numeroBaños\": 1,\r\n    \"areaMetrosCuadrados\": 50.5,\r\n    \"disponible\": true,\r\n    \"tipo\": \"APARTAMENTO\",\r\n    \"propietario\": {\r\n      \"id\": 1 // El ID del propietario al que pertenece\r\n    },\r\n    \"servicios\": [], // Lista de servicios\r\n    \"comentarios\": [], // Lista de comentarios\r\n    \"multimedia\": [] // Lista de multimedia\r\n  },\r\n  {\r\n    \"id\": 102,\r\n    \"direccion\": \"Avenida Siempre Viva 742\",\r\n    \"ciudad\": \"Bogotá D.C.\",\r\n    \"barrio\": \"Teusaquillo\",\r\n    \"precioMensual\": 950000.00,\r\n    \"descripcion\": \"Habitación amoblada\",\r\n    \"numeroHabitaciones\": 1,\r\n    \"numeroBaños\": 1,\r\n    \"areaMetrosCuadrados\": 20.0,\r\n    \"disponible\": false,\r\n    \"tipo\": \"HABITACION\",\r\n    \"propietario\": {\r\n       \"id\": 1 // El ID del propietario al que pertenece\r\n    },\r\n    \"servicios\": [],\r\n    \"comentarios\": [],\r\n    \"multimedia\": []\r\n  }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}",
+								"viviendas"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Obtener Vivienda específica de un Propietario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas/{{vivienda_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}",
+						"viviendas",
+						"{{vivienda_id}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener Vivienda específica de un Propietario",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 101, // ID de ejemplo de la vivienda\r\n  \"direccion\": \"Calle Falsa 123\",\r\n  \"ciudad\": \"Bogotá D.C.\",\r\n  \"barrio\": \"Chapinero\",\r\n  \"precioMensual\": 1200000.00,\r\n  \"descripcion\": \"Apartamento acogedor, cerca a transmilenio.\",\r\n  \"numeroHabitaciones\": 2,\r\n  \"numeroBaños\": 1,\r\n  \"areaMetrosCuadrados\": 50.5,\r\n  \"disponible\": true,\r\n  \"tipo\": \"APARTAMENTO\",\r\n  \"propietario\": {\r\n    \"id\": 1 // ID del propietario asociado\r\n  },\r\n  \"universidadCerca\": {\r\n    \"id\": 5 // ID de la universidad cercana asociada (si existe)\r\n  },\r\n  \"servicios\": [ // Lista de servicios asociados (pueden ser objetos simplificados o IDs)\r\n    { \"id\": 10, \"nombre\": \"Internet\" },\r\n    { \"id\": 11, \"nombre\": \"Agua Caliente\" }\r\n  ],\r\n  \"comentarios\": [], // Lista de comentarios (vacía en este ejemplo)\r\n  \"multimedia\": [ // Lista de multimedia asociada\r\n    {\r\n      \"id\": 201,\r\n      \"titulo\": \"Foto Sala\",\r\n      \"tipoArchivo\": \"imagen\",\r\n      \"urlArchivo\": \"/uploads/vivienda_101/sala.jpg\",\r\n      \"esPortada\": true\r\n    },\r\n    {\r\n      \"id\": 202,\r\n      \"titulo\": \"Foto Cocina\",\r\n      \"tipoArchivo\": \"imagen\",\r\n      \"urlArchivo\": \"/uploads/vivienda_101/cocina.jpg\",\r\n      \"esPortada\": false\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas/{{vivienda_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}",
+								"viviendas",
+								"{{vivienda_id}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Obtener Vivienda que no pertenece al Propietario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas/{{otra_vivienda_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"propietarios",
+						"{{propietario_id}}",
+						"viviendas",
+						"{{otra_vivienda_id}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Obtener Vivienda que no pertenece al Propietario",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apiError\": {\r\n        \"status\": \"PRECONDITION_FAILED\",\r\n        \"timestamp\": \"19-10-2025 09:40:00\",\r\n        \"message\": \"La vivienda no pertenece al propietario\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/propietarios/{{propietario_id}}/viviendas/{{otra_vivienda_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"propietarios",
+								"{{propietario_id}}",
+								"viviendas",
+								"{{otra_vivienda_id}}"
+							]
+						}
+					},
+					"status": "Precondition Failed",
+					"code": 412,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		}
+	]
+}
