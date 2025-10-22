@@ -1,11 +1,9 @@
-/*   
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
 import co.edu.udistrital.mdp.back.entities.ReservaEntity;
 import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
 import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
-import co.edu.udistrital.mdp.back.services.EstudianteService;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +28,7 @@ class EstudianteServiceTest {
     private EstudianteRepository estudianteRepo;
 
     @Mock
-    private ReservaRepository reservaRepo;
+    private ReservaRepository reservaRepo; // Mock para verificar reservas
 
     @InjectMocks
     private EstudianteService estudianteService;
@@ -43,53 +41,76 @@ class EstudianteServiceTest {
         estudiante.setId(1L);
         estudiante.setNombre("Juan");
         estudiante.setCorreo("juan@mail.com");
+        // No se asocian reservas por defecto aquí, se hará en la prueba específica
     }
 
     @Test
     void createEstudiante_success() throws IllegalOperationException {
         when(estudianteRepo.findByCorreo("juan@mail.com")).thenReturn(Optional.empty());
-        when(estudianteRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(estudianteRepo.save(any(EstudianteEntity.class))).thenAnswer(inv -> inv.getArgument(0)); // Simula guardar
 
         EstudianteEntity creado = estudianteService.createEstudiante(estudiante);
 
         assertThat(creado).isNotNull();
-        verify(estudianteRepo).save(any());
+        assertThat(creado.getNombre()).isEqualTo("Juan");
+        verify(estudianteRepo).save(estudiante); // Verifica que se llamó a save con el objeto estudiante
     }
 
     @Test
     void createEstudiante_correoDuplicado_debeLanzar() {
+        // Simula que ya existe un estudiante con ese correo
         when(estudianteRepo.findByCorreo("juan@mail.com")).thenReturn(Optional.of(estudiante));
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> estudianteService.createEstudiante(estudiante));
-        assertThat(ex.getMessage().toLowerCase()).contains("ya se encuentra registrado");
-        verify(estudianteRepo, never()).save(any());
+
+        // Ajusta el mensaje esperado para que coincida exactamente con el lanzado
+        assertThat(ex.getMessage().toLowerCase()).contains("el correo ya está registrado");
+        verify(estudianteRepo, never()).save(any()); // Verifica que no se intentó guardar
     }
 
     @Test
     void deleteEstudiante_conReservasAsociadas_debeLanzar() {
-        estudiante.setReservas(List.of(new ReservaEntity()));
+        // Simula que el estudiante existe
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudiante));
+        // Simula que el repositorio de reservas encuentra reservas para este estudiante
+        when(reservaRepo.findByEstudianteId(1L)).thenReturn(List.of(new ReservaEntity())); // Devuelve una lista NO vacía
 
         IllegalOperationException ex = assertThrows(IllegalOperationException.class,
                 () -> estudianteService.deleteEstudiante(1L));
-        assertThat(ex.getMessage().toLowerCase()).contains("reservas asociadas");
-        verify(estudianteRepo, never()).deleteById(any());
+
+        assertThat(ex.getMessage()).contains("No se puede eliminar el estudiante con reservas");
+        verify(estudianteRepo, never()).delete(any()); // Verifica que no se llamó a delete
+        verify(reservaRepo).findByEstudianteId(1L); // Verifica que se consultaron las reservas
     }
 
     @Test
     void deleteEstudiante_success() throws IllegalOperationException {
-        estudiante.setReservas(Collections.emptyList());
+        // Simula que el estudiante existe
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudiante));
+        // Simula que el repositorio de reservas NO encuentra reservas
+        when(reservaRepo.findByEstudianteId(1L)).thenReturn(Collections.emptyList()); // Devuelve lista VACÍA
 
+        // Llama al método a probar
         estudianteService.deleteEstudiante(1L);
-        verify(estudianteRepo).deleteById(1L);
+
+        // Verifica que se llamó a delete con el OBJETO estudiante encontrado
+        verify(estudianteRepo).delete(estudiante);
+        verify(estudianteRepo, never()).deleteById(anyLong()); // Asegura que no se llamó a deleteById
+        verify(reservaRepo).findByEstudianteId(1L); // Verifica que se consultaron las reservas
     }
 
     @Test
     void deleteEstudiante_noEncontrado_debeLanzar() {
+        // Simula que el estudiante NO existe
         when(estudianteRepo.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> estudianteService.deleteEstudiante(1L));
+
+        // El servicio lanza IllegalArgumentException si no lo encuentra
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> estudianteService.deleteEstudiante(1L));
+
+        assertThat(ex.getMessage()).contains("Estudiante no encontrado con ID: 1");
+        verify(estudianteRepo, never()).delete(any()); // Verifica que no se intentó borrar
+        verify(reservaRepo, never()).findByEstudianteId(anyLong()); // Verifica que no se buscaron reservas
     }
 }
-*/

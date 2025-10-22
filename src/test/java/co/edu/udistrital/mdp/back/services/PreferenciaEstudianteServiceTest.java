@@ -1,4 +1,4 @@
-/* 
+
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -309,5 +309,5 @@ class PreferenciaEstudianteServiceTest {
 
     
 }
-*/
+
 /* Fin de los tests para PreferenciaEstudianteService */

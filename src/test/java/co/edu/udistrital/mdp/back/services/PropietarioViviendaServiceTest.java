@@ -1,20 +1,17 @@
-/* 
+
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import co.edu.udistrital.mdp.back.entities.PropietarioEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
@@ -24,7 +21,7 @@ import jakarta.transaction.Transactional;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
-@ExtendWith(SpringExtension.class)
+
 @DataJpaTest
 @Transactional
 @Import(PropietarioViviendaService.class)
@@ -174,4 +171,3 @@ class PropietarioViviendaServiceTest {
         });
     }
 }
-*/
