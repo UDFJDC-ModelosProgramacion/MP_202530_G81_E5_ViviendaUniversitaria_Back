@@ -1,4 +1,4 @@
-package co.edu.udistrital.mdp.back;
+package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.UniversidadCercaEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
