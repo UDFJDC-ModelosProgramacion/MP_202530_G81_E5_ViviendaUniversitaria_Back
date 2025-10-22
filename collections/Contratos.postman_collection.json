@@ -1,0 +1,389 @@
+{
+	"info": {
+		"_postman_id": "41fb956a-4862-4c91-b7fb-2683d9ba3063",
+		"name": "Contratos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49447336",
+		"_collection_link": "https://aksan01-8772994.postman.co/workspace/Santiago's-Workspace~90e5ddf1-7a95-4677-8779-7011e07e002b/collection/49447336-41fb956a-4862-4c91-b7fb-2683d9ba3063?action=share&source=collection_link&creator=49447336"
+	},
+	"item": [
+		{
+			"name": "Crear contrato",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"codigo\": \"CTR-0001\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-08-31\",\n  \"montoTotal\": 1200000,\n  \"estanciaId\": {{estancia_id_1}}\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/contratos",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Ejemplo respuesta - 201 Created",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"codigo\": \"CTR-0001\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-08-31\",\n  \"montoTotal\": 1200000,\n  \"estanciaId\": {{estancia_id_1}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contratos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos"
+							]
+						}
+					},
+					"code": 201,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"codigo\": \"CTR-0001\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-08-31\",\n  \"montoTotal\": 1200000,\n  \"estanciaId\": 1\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener todos los contratos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/contratos",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contratos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"codigo\": \"CTR-0001\",\n    \"fechaInicio\": \"2025-09-01\",\n    \"fechaFin\": \"2026-08-31\",\n    \"montoTotal\": 1200000,\n    \"estanciaId\": 1\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "Obtener contrato por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"{{contrato_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"{{contrato_id_1}}"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"id\": {{contrato_id_1}},\n  \"codigo\": \"CTR-0001\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-08-31\",\n  \"montoTotal\": 1200000,\n  \"estanciaId\": 1\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener contrato que no existe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/contratos/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contratos/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"Contrato no encontrado con ID: 0\" }\n}"
+				}
+			]
+		},
+		{
+			"name": "Actualizar contrato",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": {{contrato_id_1}},\n  \"codigo\": \"CTR-0001-UPDATED\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-09-01\",\n  \"montoTotal\": 1250000,\n  \"estanciaId\": {{estancia_id_1}}\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"{{contrato_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{contrato_id_1}},\n  \"codigo\": \"CTR-0001-UPDATED\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-09-01\",\n  \"montoTotal\": 1250000,\n  \"estanciaId\": {{estancia_id_1}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"{{contrato_id_1}}"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"id\": {{contrato_id_1}},\n  \"codigo\": \"CTR-0001-UPDATED\",\n  \"fechaInicio\": \"2025-09-01\",\n  \"fechaFin\": \"2026-09-01\",\n  \"montoTotal\": 1250000,\n  \"estanciaId\": 1\n}"
+				}
+			]
+		},
+		{
+			"name": "Actualizar contrato que no existe",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"id\": 0, \"codigo\": \"X\" }"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/contratos/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"id\": 0, \"codigo\": \"X\" }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contratos/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"Contrato no encontrado con ID: 0\" }\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar contrato",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"{{contrato_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contratos/{{contrato_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"{{contrato_id_1}}"
+							]
+						}
+					},
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Eliminar contrato que no existe",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/contratos/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"contratos",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contratos/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"contratos",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"Contrato no encontrado con ID: 0\" }\n}"
+				}
+			]
+		}
+	]
+}
