@@ -1,10 +1,9 @@
-/*   
+ 
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
-import co.edu.udistrital.mdp.back.services.SitioInteresService;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 
@@ -80,4 +79,3 @@ class SitioInteresServiceTest {
         verify(sitioRepo).delete(sitio);
     }
 }
-*/
