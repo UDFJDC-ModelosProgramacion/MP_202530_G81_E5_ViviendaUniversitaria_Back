@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EstudianteRepository extends JpaRepository<EstudianteEntity, Long> {
 
     // Buscar estudiante por correo
-    EstudianteEntity findByCorreo(String correo);
+    Optional<EstudianteEntity> findByCorreo(String correo);
 
     // Buscar estudiantes por universidad
     List<EstudianteEntity> findByUniversidad(String universidad);

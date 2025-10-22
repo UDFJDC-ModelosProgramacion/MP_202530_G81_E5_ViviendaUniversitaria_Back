@@ -23,6 +23,9 @@ public class EstudianteEntity extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String correo;
 
+    @Column(nullable = false, unique = true)
+    private String telefono;
+
     @Column(nullable = false)
     private String universidad;
 
