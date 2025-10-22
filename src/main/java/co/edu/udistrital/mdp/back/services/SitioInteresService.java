@@ -5,7 +5,6 @@ import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
-import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,6 @@ public class SitioInteresService {
 
     @Autowired
     private SitioInteresRepository sitioRepo;
-
-    @Autowired
-    private ViviendaRepository viviendaRepo;
 
     /**
      * CREATE - Crear un nuevo sitio de interés validando reglas de negocio.
@@ -61,7 +57,7 @@ public class SitioInteresService {
      * UPDATE (PUT) - Actualización completa de los campos del sitio
      */
     public SitioInteresEntity updateSitioInteres(Long id, SitioInteresEntity in)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException{
 
         SitioInteresEntity found = getSitioInteres(id);
 

@@ -1,12 +1,10 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.ReservaEntity;
-import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
 import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 
 import lombok.RequiredArgsConstructor;
@@ -41,8 +39,8 @@ public class ReservaService {
         if (in.getVivienda() == null || in.getVivienda().getId() == null)
             throw new IllegalArgumentException("Debe asociarse una vivienda válida");
 
-        EstudianteEntity estudiante = estudianteRepo.findById(in.getEstudiante().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        estudianteRepo.findById(in.getEstudiante().getId())
+        .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
         ViviendaEntity vivienda = viviendaRepo.findById(in.getVivienda().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Vivienda no encontrada"));
 
@@ -86,8 +84,7 @@ public class ReservaService {
      * UPDATE - Cambiar estado de la reserva (Confirmada, Cancelada, Finalizada)
      */
     @Transactional
-    public ReservaEntity updateReserva(Long id, ReservaEntity in)
-            throws EntityNotFoundException, IllegalOperationException {
+    public ReservaEntity updateReserva(Long id, ReservaEntity in) {
         ReservaEntity found = getReserva(id);
 
         if (in.getFechaInicio() != null)
