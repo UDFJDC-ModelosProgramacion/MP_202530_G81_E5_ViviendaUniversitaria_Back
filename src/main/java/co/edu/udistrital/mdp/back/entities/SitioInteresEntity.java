@@ -1,5 +1,8 @@
 package co.edu.udistrital.mdp.back.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,11 +26,14 @@ public class SitioInteresEntity extends BaseEntity {
 
     private String foto;
 
+    private String descripcion;
+
     @Column(nullable = false)
     private Integer tiempoCaminando; // en minutos
 
     @PodamExclude
-    @ManyToOne
-    @JoinColumn(name = "vivienda_id")
-    private ViviendaEntity vivienda;
+    @ManyToMany
+    @JoinTable(name = "sitio_vivienda", joinColumns = @JoinColumn(name = "sitio_id"), inverseJoinColumns = @JoinColumn(name = "vivienda_id"))
+    private List<ViviendaEntity> viviendas = new ArrayList<>();
+
 }
