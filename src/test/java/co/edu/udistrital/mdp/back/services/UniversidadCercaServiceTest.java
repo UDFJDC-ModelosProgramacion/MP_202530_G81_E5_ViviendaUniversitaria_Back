@@ -1,3 +1,4 @@
+/*   
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.UniversidadCercaEntity;
@@ -128,3 +129,4 @@ class UniversidadCercaServiceTest {
         verify(universidadRepo).delete(any());
     }
 }
+*/

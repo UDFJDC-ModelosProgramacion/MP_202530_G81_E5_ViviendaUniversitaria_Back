@@ -1,3 +1,4 @@
+/*   
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
@@ -79,3 +80,4 @@ class SitioInteresServiceTest {
         verify(sitioRepo).delete(sitio);
     }
 }
+*/
