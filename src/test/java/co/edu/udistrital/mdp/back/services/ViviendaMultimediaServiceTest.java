@@ -1,4 +1,4 @@
-/* 
+
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,12 +9,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 
 import co.edu.udistrital.mdp.back.entities.MultimediaEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
@@ -24,7 +24,7 @@ import jakarta.transaction.Transactional;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
-@ExtendWith(SpringExtension.class)
+
 @DataJpaTest
 @Transactional
 @Import(ViviendaMultimediaService.class)
@@ -212,10 +212,9 @@ class ViviendaMultimediaServiceTest {
         assertFalse(removedItem.isPresent(), "El multimedia removido no debería estar en la lista de la vivienda");
         assertEquals(multimediaList.size() - 1, updatedVivienda.getMultimedia().size());
 
-        // Optionally check if the Multimedia entity still exists but without the vivienda association
+        
         MultimediaEntity afterDelete = entityManager.find(MultimediaEntity.class, multimediaToRemoveId);
-        assertNotNull(afterDelete, "La entidad Multimedia no debería ser eliminada, solo desasociada");
-        assertNull(afterDelete.getVivienda(), "La vivienda asociada debería ser null después de remover");
+        assertNull(afterDelete, "La entidad Multimedia debería haber sido eliminada debido a orphanRemoval=true");
     }
 
     @Test
@@ -251,4 +250,3 @@ class ViviendaMultimediaServiceTest {
         assertEquals("El archivo multimedia no pertenece a la vivienda", ex.getMessage());
     }
 }
-*/
