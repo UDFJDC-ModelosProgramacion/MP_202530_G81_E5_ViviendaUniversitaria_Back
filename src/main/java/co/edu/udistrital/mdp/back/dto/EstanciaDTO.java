@@ -1,5 +1,5 @@
 package co.edu.udistrital.mdp.back.dto;
-
+// DTO para la entidad Estancia 
 import lombok.Data;
 import java.time.LocalDateTime;
 
