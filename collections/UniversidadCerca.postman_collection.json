@@ -1,0 +1,432 @@
+{
+	"info": {
+		"_postman_id": "ac720c99-72ee-48de-8e02-7654c56d2baf",
+		"name": "UniversidadCerca",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49447336",
+		"_collection_link": "https://aksan01-8772994.postman.co/workspace/Santiago's-Workspace~90e5ddf1-7a95-4677-8779-7011e07e002b/collection/49447336-ac720c99-72ee-48de-8e02-7654c56d2baf?action=share&source=collection_link&creator=49447336"
+	},
+	"item": [
+		{
+			"name": "Crear universidad",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre\": \"Universidad Ejemplo\",\n  \"ciudad\": \"Bogotá\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/universidades",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Universidad Ejemplo\",\n  \"ciudad\": \"Bogotá\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/universidades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades"
+							]
+						}
+					},
+					"code": 201,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"nombre\": \"Universidad Ejemplo\",\n  \"ciudad\": \"Bogotá\",\n  \"viviendaIds\": []\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener todas las universidades",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "[\n  { \"id\": 1, \"nombre\": \"Universidad Ejemplo\", \"ciudad\": \"Bogotá\", \"viviendaIds\": [] }\n]"
+				}
+			]
+		},
+		{
+			"name": "Obtener universidad por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"{{universidad_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"{{universidad_id_1}}"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{ \"id\": {{universidad_id_1}}, \"nombre\": \"Universidad Ejemplo\", \"ciudad\": \"Bogotá\", \"viviendaIds\": [] }"
+				}
+			]
+		},
+		{
+			"name": "Obtener universidad que no existe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"UniversidadCerca no encontrada con ID: 0\" }\n}"
+				}
+			]
+		},
+		{
+			"name": "Actualizar universidad",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": {{universidad_id_1}},\n  \"nombre\": \"Universidad Ejemplo 2\",\n  \"ciudad\": \"Bogotá\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"{{universidad_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{universidad_id_1}},\n  \"nombre\": \"Universidad Ejemplo 2\",\n  \"ciudad\": \"Bogotá\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"{{universidad_id_1}}"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{ \"id\": {{universidad_id_1}}, \"nombre\": \"Universidad Ejemplo 2\", \"ciudad\": \"Bogotá\", \"viviendaIds\": [] }"
+				}
+			]
+		},
+		{
+			"name": "Actualizar universidad que no existe",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"id\": 0, \"nombre\": \"X\" }"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/universidades/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"id\": 0, \"nombre\": \"X\" }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/universidades/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{ \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"UniversidadCerca no encontrada con ID: 0\" } }"
+				}
+			]
+		},
+		{
+			"name": "Eliminar universidad",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"{{universidad_id_1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"{{universidad_id_1}}"
+							]
+						}
+					},
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Eliminar universidad que no existe",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades/0",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"0"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades/0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"0"
+							]
+						}
+					},
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "{ \"apierror\": { \"status\": \"NOT_FOUND\", \"timestamp\": \"2025-10-21 00:00:00\", \"message\": \"UniversidadCerca no encontrada con ID: 0\" } }"
+				}
+			]
+		},
+		{
+			"name": "Listar viviendas de una universidad (asociación)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}/viviendas",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"universidades",
+						"{{universidad_id_1}}",
+						"viviendas"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/universidades/{{universidad_id_1}}/viviendas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"universidades",
+								"{{universidad_id_1}}",
+								"viviendas"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": "[ { \"id\": 1, \"direccion\": \"Calle 1 #2-3\" } ]"
+				}
+			]
+		}
+	]
+}
