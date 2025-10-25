@@ -28,45 +28,61 @@ public class EstudianteController {
 
     /** GET /estudiantes */
     @GetMapping
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     public List<EstudianteDTO> findAll() {
-        List<EstudianteEntity> list = estudianteService.getEstudiantes();
+        List<EstudianteEntity> list = estudianteService.listarTodos();
         return modelMapper.map(list, new TypeToken<List<EstudianteDTO>>() {
         }.getType());
     }
 
     /** GET /estudiantes/{id} */
     @GetMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public EstudianteDetailDTO findOne(@PathVariable("id") Long id) throws EntityNotFoundException {
-        EstudianteEntity entity = estudianteService.getEstudiante(id);
-        return modelMapper.map(entity, EstudianteDetailDTO.class);
+    @ResponseStatus(HttpStatus.OK)
+    public EstudianteDetailDTO findOne(@PathVariable Long id) throws EntityNotFoundException {
+        try {
+            EstudianteEntity entity = estudianteService.obtenerPorId(id);
+            return modelMapper.map(entity, EstudianteDetailDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     /** POST /estudiantes */
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public EstudianteDTO create(@RequestBody EstudianteDTO dto) throws IllegalOperationException {
         EstudianteEntity entity = modelMapper.map(dto, EstudianteEntity.class);
-        EstudianteEntity created = estudianteService.createEstudiante(entity);
-        return modelMapper.map(created, EstudianteDTO.class);
+        try {
+            EstudianteEntity created = estudianteService.crear(entity);
+            return modelMapper.map(created, EstudianteDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalOperationException(e.getMessage());
+        }
     }
 
     /** PUT /estudiantes/{id} */
     @PutMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public EstudianteDTO update(@PathVariable("id") Long id, @RequestBody EstudianteDTO dto)
+    @ResponseStatus(HttpStatus.OK)
+    public EstudianteDTO update(@PathVariable Long id, @RequestBody EstudianteDTO dto)
             throws EntityNotFoundException, IllegalOperationException {
-        EstudianteEntity entity = modelMapper.map(dto, EstudianteEntity.class);
-        EstudianteEntity updated = estudianteService.updateEstudiante(id, entity);
-        return modelMapper.map(updated, EstudianteDTO.class);
+        try {
+            EstudianteEntity entity = modelMapper.map(dto, EstudianteEntity.class);
+            EstudianteEntity updated = estudianteService.actualizar(id, entity);
+            return modelMapper.map(updated, EstudianteDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     /** DELETE /estudiantes/{id} */
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id)
             throws EntityNotFoundException, IllegalOperationException {
-        estudianteService.deleteEstudiante(id);
+        try {
+            estudianteService.eliminar(id);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 }
