@@ -2,31 +2,28 @@ package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
-import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
-import co.edu.udistrital.mdp.back.services.SitioInteresService;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-
+import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
+import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class SitioInteresServiceTest {
 
     @Mock
     private SitioInteresRepository sitioRepo;
+
+    @Mock
+    private ViviendaRepository viviendaRepo;
 
     @InjectMocks
     private SitioInteresService sitioService;
@@ -34,48 +31,89 @@ class SitioInteresServiceTest {
     private SitioInteresEntity sitio;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
         sitio = new SitioInteresEntity();
         sitio.setId(1L);
-        sitio.setNombre("Parque Central");
-        sitio.setUbicacion("Calle 10");
+        sitio.setNombre("Biblioteca Central");
+        sitio.setUbicacion("Carrera 45");
+        sitio.setTiempoCaminando(10);
     }
 
     @Test
-    void createSitioInteres_success() throws IllegalOperationException {
-        when(sitioRepo.findByNombreContaining("Parque Central")).thenReturn(Collections.emptyList());
-        when(sitioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    void testCreateSitioInteres_Success() throws IllegalOperationException {
+        when(sitioRepo.findByNombreContaining(anyString())).thenReturn(Collections.emptyList());
+        when(sitioRepo.save(any(SitioInteresEntity.class))).thenReturn(sitio);
 
-        SitioInteresEntity creado = sitioService.createSitioInteres(sitio);
-        assertThat(creado).isNotNull();
-        verify(sitioRepo).save(any());
+        SitioInteresEntity result = sitioService.createSitioInteres(sitio);
+
+        assertNotNull(result);
+        verify(sitioRepo).save(any(SitioInteresEntity.class));
     }
 
     @Test
-    void createSitioInteres_nombreDuplicado_debeLanzar() {
-        when(sitioRepo.findByNombreContaining("Parque Central")).thenReturn(List.of(sitio));
+    void testCreateSitioInteres_NombreDuplicado() {
+        when(sitioRepo.findByNombreContaining(anyString())).thenReturn(List.of(sitio));
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> sitioService.createSitioInteres(sitio));
-        assertThat(ex.getMessage().toLowerCase()).contains("ya existe un sitio");
+        assertThrows(IllegalOperationException.class, () -> sitioService.createSitioInteres(sitio));
     }
 
     @Test
-    void deleteSitioInteres_conViviendasAsociadas_debeLanzar() {
-        sitio.setViviendas(List.of(new ViviendaEntity()));
+    void testGetAllSitios() {
+        when(sitioRepo.findAll()).thenReturn(List.of(sitio));
+
+        List<SitioInteresEntity> result = sitioService.getAllSitios();
+
+        assertEquals(1, result.size());
+        verify(sitioRepo).findAll();
+    }
+
+    @Test
+    void testGetSitioInteres_Success() throws EntityNotFoundException {
         when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> sitioService.deleteSitioInteres(1L));
-        assertThat(ex.getMessage().toLowerCase()).contains("tiene viviendas asociadas");
+        SitioInteresEntity result = sitioService.getSitioInteres(1L);
+
+        assertEquals("Biblioteca Central", result.getNombre());
     }
 
     @Test
-    void deleteSitioInteres_success() throws EntityNotFoundException, IllegalOperationException {
+    void testGetSitioInteres_NotFound() {
+        when(sitioRepo.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> sitioService.getSitioInteres(1L));
+    }
+
+    @Test
+    void testUpdateSitioInteres_Success() throws Exception {
+        SitioInteresEntity update = new SitioInteresEntity();
+        update.setNombre("Nuevo nombre");
+
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+        when(sitioRepo.save(any(SitioInteresEntity.class))).thenReturn(sitio);
+
+        SitioInteresEntity result = sitioService.updateSitioInteres(1L, update);
+
+        assertEquals("Nuevo nombre", result.getNombre());
+        verify(sitioRepo).save(any(SitioInteresEntity.class));
+    }
+
+    @Test
+    void testDeleteSitioInteres_Success() throws Exception {
         sitio.setViviendas(Collections.emptyList());
         when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
 
         sitioService.deleteSitioInteres(1L);
+
         verify(sitioRepo).delete(sitio);
+    }
+
+    @Test
+    void testDeleteSitioInteres_WithViviendas() {
+        ViviendaEntity vivienda = new ViviendaEntity();
+        sitio.setViviendas(List.of(vivienda));
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+
+        assertThrows(IllegalOperationException.class, () -> sitioService.deleteSitioInteres(1L));
     }
 }

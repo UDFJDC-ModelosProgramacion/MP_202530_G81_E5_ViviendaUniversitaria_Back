@@ -1,94 +1,111 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
-import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
-import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class SitioInteresService {
 
-    @Autowired
-    private SitioInteresRepository sitioRepo;
-
-    @Autowired
-    private ViviendaRepository viviendaRepo;
+    private final SitioInteresRepository sitioRepo;
+    private final ViviendaRepository viviendaRepo;
 
     /**
-     * CREATE - Crear un nuevo sitio de interés validando reglas de negocio.
+     * CREATE - crea un sitio de interés con validaciones.
      */
-    public SitioInteresEntity createSitioInteres(SitioInteresEntity in) throws IllegalOperationException {
+    public SitioInteresEntity createSitioInteres(SitioInteresEntity in) {
         if (in == null)
-            throw new IllegalArgumentException("Entidad SitioInteres obligatoria");
-        if (in.getNombre() == null || in.getNombre().isBlank())
-            throw new IllegalArgumentException("El nombre del sitio no puede estar vacío");
-        if (in.getUbicacion() == null || in.getUbicacion().isBlank())
-            throw new IllegalArgumentException("Debe especificarse la ubicación del sitio");
+            throw new IllegalArgumentException("Entidad SitioInteres es obligatoria");
 
-        List<SitioInteresEntity> existentes = sitioRepo.findByNombreContaining(in.getNombre());
-        if (!existentes.isEmpty())
-            throw new IllegalOperationException("Ya existe un sitio con un nombre similar");
+        String nombre = safeTrim(in.getNombre());
+        String ubicacion = safeTrim(in.getUbicacion());
+
+        if (nombre.isBlank())
+            throw new IllegalArgumentException("Nombre obligatorio");
+        if (nombre.length() > 150)
+            throw new IllegalArgumentException("Nombre excede 150 caracteres");
+        if (sitioRepo.existsByNombreIgnoreCase(nombre))
+            throw new IllegalArgumentException("Ya existe un SitioInteres con ese nombre");
+
+        if (ubicacion.isBlank())
+            throw new IllegalArgumentException("Ubicación obligatoria");
+        if (in.getTiempoCaminando() == null || in.getTiempoCaminando() < 0)
+            throw new IllegalArgumentException("Tiempo caminando inválido");
+
+        in.setNombre(nombre);
+        in.setUbicacion(ubicacion);
 
         return sitioRepo.save(in);
     }
 
     /**
-     * READ - Obtener todos los sitios
+     * READ - obtiene todos los sitios
      */
     public List<SitioInteresEntity> getAllSitios() {
         return sitioRepo.findAll();
     }
 
     /**
-     * READ - Obtener sitio por id
+     * READ - obtiene un sitio por su ID
      */
-    public SitioInteresEntity getSitioInteres(Long id) throws EntityNotFoundException {
+    public SitioInteresEntity getSitioInteres(long id) {
         return sitioRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Sitio de interés no encontrado con id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("SitioInteres no encontrado con ID: " + id));
     }
 
     /**
-     * UPDATE (PUT) - Actualización completa de los campos del sitio
+     * UPDATE - actualiza los datos de un sitio existente.
      */
-    public SitioInteresEntity updateSitioInteres(Long id, SitioInteresEntity in)
-            throws EntityNotFoundException, IllegalOperationException {
-
+    public SitioInteresEntity updateSitioInteres(long id, SitioInteresEntity updates) {
         SitioInteresEntity found = getSitioInteres(id);
 
-        if (in.getNombre() != null && !in.getNombre().isBlank())
-            found.setNombre(in.getNombre());
-        if (in.getUbicacion() != null && !in.getUbicacion().isBlank())
-            found.setUbicacion(in.getUbicacion());
-        if (in.getTiempoCaminando() != null)
-            found.setTiempoCaminando(in.getTiempoCaminando());
-        if (in.getFoto() != null)
-            found.setFoto(in.getFoto());
+        String nuevoNombre = safeTrim(updates.getNombre());
+        if (nuevoNombre.isBlank())
+            throw new IllegalArgumentException("Nombre obligatorio");
+        if (!found.getNombre().equalsIgnoreCase(nuevoNombre)
+                && sitioRepo.existsByNombreIgnoreCase(nuevoNombre)) {
+            throw new IllegalArgumentException("Ya existe otro SitioInteres con ese nombre");
+        }
+
+        found.setNombre(nuevoNombre);
+
+        String nuevaUbicacion = safeTrim(updates.getUbicacion());
+        if (nuevaUbicacion.isBlank())
+            throw new IllegalArgumentException("Ubicación obligatoria");
+        found.setUbicacion(nuevaUbicacion);
+
+        if (updates.getDescripcion() != null)
+            found.setDescripcion(updates.getDescripcion());
+        if (updates.getFoto() != null)
+            found.setFoto(updates.getFoto());
+        if (updates.getTiempoCaminando() != null && updates.getTiempoCaminando() >= 0)
+            found.setTiempoCaminando(updates.getTiempoCaminando());
 
         return sitioRepo.save(found);
     }
 
     /**
-     * DELETE - Eliminar un sitio solo si no tiene viviendas asociadas
+     * DELETE - elimina un sitio si no tiene viviendas asociadas.
      */
-    public void deleteSitioInteres(Long id)
-            throws EntityNotFoundException, IllegalOperationException {
+    public void deleteSitioInteres(long id) {
         SitioInteresEntity found = getSitioInteres(id);
 
-        List<ViviendaEntity> viviendas = found.getViviendas();
-        if (viviendas != null && !viviendas.isEmpty()) {
-            throw new IllegalOperationException("No se puede eliminar el sitio porque tiene viviendas asociadas");
-        }
+        long viviendasAsociadas = sitioRepo.countViviendasAsociadas(id);
+        if (viviendasAsociadas > 0)
+            throw new IllegalStateException(
+                    "No se puede eliminar: tiene viviendas asociadas (" + viviendasAsociadas + ")");
 
         sitioRepo.delete(found);
+    }
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
     }
 }
