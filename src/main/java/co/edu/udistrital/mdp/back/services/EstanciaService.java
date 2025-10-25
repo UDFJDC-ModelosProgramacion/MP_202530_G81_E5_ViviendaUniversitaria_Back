@@ -192,4 +192,12 @@ public class EstanciaService {
 
         estanciaRepo.delete(found);
     }
+
+    /**
+     * READ - obtener todas las estancias
+     */
+    
+    public java.util.List<EstanciaEntity> obtenerTodas() {
+        return estanciaRepo.findAll();
+    }
 }
