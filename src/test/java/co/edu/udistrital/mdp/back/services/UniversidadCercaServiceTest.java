@@ -1,11 +1,9 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.UniversidadCercaEntity;
-import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.repositories.UniversidadCercaRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-// Ya no necesitas importar UniversidadCercaService
-// import co.edu.udistrital.mdp.back.services.UniversidadCercaService;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings; // Importar
-import org.mockito.quality.Strictness; // Importar
+import org.mockito.junit.jupiter.MockitoSettings; 
+import org.mockito.quality.Strictness; 
 
 import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) // Añadir Lenient
+@MockitoSettings(strictness = Strictness.LENIENT) 
 class UniversidadCercaServiceTest {
 
     @Mock

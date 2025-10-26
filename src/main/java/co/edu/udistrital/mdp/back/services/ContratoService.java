@@ -131,4 +131,12 @@ public class ContratoService {
 
         contratoRepo.delete(found);
     }
+
+    /**
+     * READ - obtener todos los contratos
+     */ 
+    
+    public java.util.List<ContratoEntity> obtenerTodos() {
+        return contratoRepo.findAll();
+    }
 }

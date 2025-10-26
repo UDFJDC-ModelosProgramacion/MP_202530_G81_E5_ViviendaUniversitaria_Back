@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings; // Importar
 import org.mockito.quality.Strictness; // Importar
 
-import java.time.LocalDateTime; // Importar LocalDateTime
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;

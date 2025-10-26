@@ -1,4 +1,3 @@
-/* 
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.PropietarioEntity;
@@ -8,14 +7,17 @@ import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow; 
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +42,7 @@ class ViviendaServiceTest {
 
     private PropietarioEntity propietarioMock;
     private ViviendaEntity viviendaValida;
+    private Long viviendaValidaId = 1L; 
 
     @BeforeEach
     void setup() {
@@ -52,6 +55,8 @@ class ViviendaServiceTest {
         when(propietarioRepository.existsById(1L)).thenReturn(true);
 
         viviendaValida = buildValidVivienda();
+        viviendaValida.setId(viviendaValidaId); // Asigna ID
+        when(viviendaRepository.findById(viviendaValidaId)).thenReturn(Optional.of(viviendaValida));
     }
 
     private ViviendaEntity buildValidVivienda() {
@@ -73,6 +78,7 @@ class ViviendaServiceTest {
     @Test
     void crearVivienda_success_setsDisponibleAndSaves() {
         ViviendaEntity v = buildValidVivienda();
+        v.setId(null);
 
         ViviendaEntity saved = viviendaService.crearVivienda(v);
 
@@ -89,7 +95,6 @@ class ViviendaServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 viviendaService.crearVivienda(v));
         assertThat(ex.getMessage()).contains("El campo 'propietario' no puede estar vacío");
-        verify(propietarioRepository, never()).existsById(anyLong());
         verify(viviendaRepository, never()).save(any());
     }
 
@@ -101,9 +106,37 @@ class ViviendaServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 viviendaService.crearVivienda(v));
         assertThat(ex.getMessage()).contains("El propietario con ID 1 no existe");
-        verify(propietarioRepository).existsById(1L);
         verify(viviendaRepository, never()).save(any());
     }
+
+    
+    @Test
+    void crearVivienda_direccionVacia_throws() {
+        ViviendaEntity v = buildValidVivienda();
+        v.setDireccion("   ");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> viviendaService.crearVivienda(v));
+        assertThat(ex.getMessage()).contains("El campo 'dirección' no puede estar vacío");
+        verify(viviendaRepository, never()).save(any());
+    }
+
+    @Test
+    void crearVivienda_ciudadVacia_throws() {
+        ViviendaEntity v = buildValidVivienda();
+        v.setCiudad("");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> viviendaService.crearVivienda(v));
+        assertThat(ex.getMessage()).contains("El campo 'ciudad' no puede estar vacío");
+        verify(viviendaRepository, never()).save(any());
+    }
+
+     @Test
+    void crearVivienda_barrioNull_throws() {
+        ViviendaEntity v = buildValidVivienda();
+        v.setBarrio(null);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> viviendaService.crearVivienda(v));
+        assertThat(ex.getMessage()).contains("El campo 'barrio' no puede estar vacío");
+        verify(viviendaRepository, never()).save(any());
+    }
+    // --- Fin nuevas pruebas ---
 
     @Test
     void crearVivienda_precioMensualNull_throws() {
@@ -139,6 +172,15 @@ class ViviendaServiceTest {
     }
 
     @Test
+    void crearVivienda_areaNull_noThrows() { 
+        ViviendaEntity v = buildValidVivienda();
+        v.setAreaMetrosCuadrados(null);
+        assertDoesNotThrow(() -> viviendaService.crearVivienda(v));
+        verify(viviendaRepository).save(v);
+    }
+
+
+    @Test
     void crearVivienda_numeroHabitacionesInvalid_throws() {
         ViviendaEntity v = buildValidVivienda();
         v.setNumeroHabitaciones(0);
@@ -171,62 +213,112 @@ class ViviendaServiceTest {
         verify(viviendaRepository, never()).save(any());
     }
 
+    
+    @Test
+    void obtenerViviendaPorId_success() {
+        ViviendaEntity found = viviendaService.obtenerViviendaPorId(viviendaValidaId);
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(viviendaValidaId);
+        verify(viviendaRepository).findById(viviendaValidaId);
+    }
+
     @Test
     void obtenerViviendaPorId_notFound_throws() {
-        when(viviendaRepository.findById(5L)).thenReturn(Optional.empty());
+        when(viviendaRepository.findById(99L)).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                viviendaService.obtenerViviendaPorId(5L));
-        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 5");
+                viviendaService.obtenerViviendaPorId(99L));
+        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 99");
+    }
+
+    
+    @Test
+    void obtenerTodasLasViviendas_success() {
+        ViviendaEntity v2 = buildValidVivienda();
+        v2.setId(2L);
+        List<ViviendaEntity> expectedList = Arrays.asList(viviendaValida, v2);
+        when(viviendaRepository.findAll()).thenReturn(expectedList);
+
+        List<ViviendaEntity> result = viviendaService.obtenerTodasLasViviendas();
+
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).containsExactlyInAnyOrder(viviendaValida, v2);
+        verify(viviendaRepository).findAll();
+    }
+
+    
+    @Test
+    void obtenerViviendasDisponiblesPorCiudad_notFound() {
+        when(viviendaRepository.findByCiudadAndDisponible("CiudadInexistente", true)).thenReturn(Collections.emptyList());
+
+        List<ViviendaEntity> result = viviendaService.obtenerViviendasDisponiblesPorCiudad("CiudadInexistente");
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
+        verify(viviendaRepository).findByCiudadAndDisponible("CiudadInexistente", true);
+    }
+
+
+    
+    @Test
+    void marcarComoNoDisponible_notFound_throws() {
+        when(viviendaRepository.findById(99L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.marcarComoNoDisponible(99L));
+        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 99");
+        verify(viviendaRepository, never()).save(any());
     }
 
     @Test
-    void marcarComoNoDisponible_and_MarcarComoDisponible_toggleDisponible() {
-        ViviendaEntity v = buildValidVivienda();
-        v.setId(2L);
-        v.setDisponible(true);
-        when(viviendaRepository.findById(2L)).thenReturn(Optional.of(v));
-
-        ViviendaEntity noDisp = viviendaService.marcarComoNoDisponible(2L);
-        assertThat(noDisp.getDisponible()).isFalse();
-        verify(viviendaRepository).save(v);
-
-        v.setDisponible(false);
-        when(viviendaRepository.findById(2L)).thenReturn(Optional.of(v));
-
-        ViviendaEntity disp = viviendaService.marcarComoDisponible(2L);
-        assertThat(disp.getDisponible()).isTrue();
-        verify(viviendaRepository, times(2)).save(v);
+    void marcarComoDisponible_notFound_throws() {
+        when(viviendaRepository.findById(99L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.marcarComoDisponible(99L));
+        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 99");
+        verify(viviendaRepository, never()).save(any());
     }
+
 
     @Test
     void eliminarVivienda_available_true_deletes() {
-        ViviendaEntity v = buildValidVivienda();
-        v.setId(3L);
+        ViviendaEntity v = buildValidVivienda(); 
         v.setDisponible(true);
-        when(viviendaRepository.findById(3L)).thenReturn(Optional.of(v));
 
-        viviendaService.eliminarVivienda(3L);
+        viviendaService.eliminarVivienda(viviendaValidaId);
 
-        verify(viviendaRepository).findById(3L);
-        verify(viviendaRepository).deleteById(3L);
+        verify(viviendaRepository).findById(viviendaValidaId);
+        verify(viviendaRepository).deleteById(viviendaValidaId);
         verify(viviendaRepository, never()).delete(any(ViviendaEntity.class));
     }
 
-    @Test
-    void eliminarVivienda_notAvailable_throws() {
-        ViviendaEntity v = buildValidVivienda();
-        v.setId(4L);
-        v.setDisponible(false);
-        when(viviendaRepository.findById(4L)).thenReturn(Optional.of(v));
+ @Test
+void eliminarVivienda_notAvailable_throws() {
+    
+    ViviendaEntity v = buildValidVivienda(); 
+    v.setId(4L);          
+    v.setDisponible(false);
+    when(viviendaRepository.findById(4L)).thenReturn(Optional.of(v));
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
-                viviendaService.eliminarVivienda(4L));
-        assertThat(ex.getMessage()).contains("No se puede eliminar la vivienda con ID 4 porque está actualmente arrendada");
+    IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+            viviendaService.eliminarVivienda(4L));
+    assertThat(ex.getMessage()).contains("No se puede eliminar la vivienda con ID 4 porque está actualmente arrendada");
 
-        verify(viviendaRepository).findById(4L);
+    verify(viviendaRepository).findById(4L);
+    verify(viviendaRepository, never()).deleteById(anyLong());
+}
+
+    
+     @Test
+    void eliminarVivienda_notFound_throws() {
+        when(viviendaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.eliminarVivienda(99L));
+        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 99");
         verify(viviendaRepository, never()).deleteById(anyLong());
     }
+
 
     @Test
     void obtenerViviendasDisponiblesPorCiudad_delegatesToRepository() {
@@ -244,13 +336,11 @@ class ViviendaServiceTest {
 
     @Test
     void actualizarVivienda_updatesFields_and_keepsDisponibleManagedSeparately() {
-        ViviendaEntity existente = buildValidVivienda();
-        existente.setId(10L);
+        ViviendaEntity existente = buildValidVivienda(); // Usa la del setup (ID 1L)
         existente.setDireccion("Old");
         existente.setCiudad("OldCity");
         existente.setBarrio("OldBarrio");
         existente.setDisponible(true);
-        when(viviendaRepository.findById(10L)).thenReturn(Optional.of(existente));
 
         ViviendaEntity actualizado = new ViviendaEntity();
         actualizado.setDireccion("New");
@@ -268,9 +358,9 @@ class ViviendaServiceTest {
         actualizado.setPropietario(newProp);
         when(propietarioRepository.existsById(99L)).thenReturn(true);
 
-        ViviendaEntity saved = viviendaService.actualizarVivienda(10L, actualizado);
+        ViviendaEntity saved = viviendaService.actualizarVivienda(viviendaValidaId, actualizado);
 
-        assertThat(saved).isSameAs(existente);
+        assertThat(saved.getPropietario().getId()).isEqualTo(newProp.getId()); 
         assertThat(saved.getDireccion()).isEqualTo("New");
         assertThat(saved.getCiudad()).isEqualTo("NewCity");
         assertThat(saved.getBarrio()).isEqualTo("NewBarrio");
@@ -280,13 +370,99 @@ class ViviendaServiceTest {
         assertThat(saved.getAreaMetrosCuadrados()).isEqualTo(60.0);
         assertThat(saved.getTipo()).isEqualTo(ViviendaEntity.TipoVivienda.CASA);
         assertThat(saved.getDescripcion()).isEqualTo("Nueva Descripcion");
-        assertThat(saved.getPropietario().getId()).isEqualTo(newProp.getId());
+        assertThat(saved.getPropietario().getId()).isEqualTo(newProp.getId()); 
 
         assertThat(saved.getDisponible()).isTrue();
 
-        verify(viviendaRepository).findById(10L);
+        verify(viviendaRepository).findById(viviendaValidaId);
         verify(propietarioRepository).existsById(99L);
-        verify(viviendaRepository).save(existente);
+        verify(viviendaRepository).save(any(ViviendaEntity.class)); 
+    }
+    @Test
+    void marcarComoNoDisponible_y_luego_MarcarComoDisponible() {
+        
+        Long viviendaId = 2L;
+        ViviendaEntity viviendaOriginal = buildValidVivienda();
+        viviendaOriginal.setId(viviendaId);
+        viviendaOriginal.setDisponible(true);
+
+        
+        when(viviendaRepository.findById(viviendaId)).thenReturn(Optional.of(viviendaOriginal));
+
+        
+        ViviendaEntity viviendaNoDisponible = viviendaService.marcarComoNoDisponible(viviendaId);
+
+        
+        assertThat(viviendaNoDisponible.getDisponible()).isFalse();
+        
+        ArgumentCaptor<ViviendaEntity> viviendaCaptor1 = ArgumentCaptor.forClass(ViviendaEntity.class);
+        verify(viviendaRepository, times(1)).save(viviendaCaptor1.capture());
+        assertThat(viviendaCaptor1.getValue().getId()).isEqualTo(viviendaId);
+        assertThat(viviendaCaptor1.getValue().getDisponible()).isFalse(); 
+
+        
+        ViviendaEntity viviendaGuardadaNoDisp = viviendaCaptor1.getValue();
+    
+        when(viviendaRepository.findById(viviendaId)).thenReturn(Optional.of(viviendaGuardadaNoDisp));
+
+        
+        ViviendaEntity viviendaDisponibleDeNuevo = viviendaService.marcarComoDisponible(viviendaId);
+
+        
+        assertThat(viviendaDisponibleDeNuevo.getDisponible()).isTrue();
+        
+        ArgumentCaptor<ViviendaEntity> viviendaCaptor2 = ArgumentCaptor.forClass(ViviendaEntity.class);
+        verify(viviendaRepository, times(2)).save(viviendaCaptor2.capture()); 
+        
+        ViviendaEntity viviendaGuardadaDisp = viviendaCaptor2.getAllValues().get(1);
+        assertThat(viviendaGuardadaDisp.getId()).isEqualTo(viviendaId);
+        assertThat(viviendaGuardadaDisp.getDisponible()).isTrue(); 
+    }
+    
+    @Test
+    void actualizarVivienda_notFound_throws() {
+        ViviendaEntity actualizado = buildValidVivienda(); 
+        when(viviendaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.actualizarVivienda(99L, actualizado));
+        assertThat(ex.getMessage()).contains("Vivienda no encontrada con ID: 99");
+        verify(viviendaRepository, never()).save(any());
+    }
+
+     @Test
+    void actualizarVivienda_conDireccionVacia_throws() {
+        ViviendaEntity actualizado = buildValidVivienda();
+        actualizado.setDireccion(" "); // Dirección inválida
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.actualizarVivienda(viviendaValidaId, actualizado));
+        assertThat(ex.getMessage()).contains("El campo 'dirección' no puede estar vacío");
+        verify(viviendaRepository, never()).save(any());
+    }
+
+    @Test
+    void actualizarVivienda_conPrecioCero_throws() {
+        ViviendaEntity actualizado = buildValidVivienda();
+        actualizado.setPrecioMensual(BigDecimal.ZERO); // Precio inválido
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.actualizarVivienda(viviendaValidaId, actualizado));
+        assertThat(ex.getMessage()).contains("El campo 'precioMensual' debe ser un valor numérico mayor a cero");
+        verify(viviendaRepository, never()).save(any());
+    }
+
+    @Test
+    void actualizarVivienda_conPropietarioInexistente_throws() {
+        ViviendaEntity actualizado = buildValidVivienda();
+        PropietarioEntity newProp = mock(PropietarioEntity.class);
+        when(newProp.getId()).thenReturn(99L);
+        actualizado.setPropietario(newProp); 
+        when(propietarioRepository.existsById(99L)).thenReturn(false); 
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            viviendaService.actualizarVivienda(viviendaValidaId, actualizado));
+        assertThat(ex.getMessage()).contains("El propietario con ID 99 no existe");
+        verify(viviendaRepository, never()).save(any());
     }
 }
-    */

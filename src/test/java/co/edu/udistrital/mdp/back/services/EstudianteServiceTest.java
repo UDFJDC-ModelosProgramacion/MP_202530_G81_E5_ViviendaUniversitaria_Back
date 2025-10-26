@@ -1,116 +1,116 @@
 package co.edu.udistrital.mdp.back.services;
 
-import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
-import co.edu.udistrital.mdp.back.entities.ReservaEntity;
-import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
-import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-
+import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
+import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
+import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class EstudianteServiceTest {
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SitioInteresServiceTest {
 
     @Mock
-    private EstudianteRepository estudianteRepo;
+    private SitioInteresRepository sitioRepo;
 
     @Mock
-    private ReservaRepository reservaRepo; // Mock para verificar reservas
+    private ViviendaRepository viviendaRepo;
 
     @InjectMocks
-    private EstudianteService estudianteService;
+    private SitioInteresService sitioService;
 
-    private EstudianteEntity estudiante;
+    private SitioInteresEntity sitioPersistido;
 
     @BeforeEach
     void setup() {
-        estudiante = new EstudianteEntity();
-        estudiante.setId(1L);
-        estudiante.setNombre("Juan");
-        estudiante.setCorreo("juan@mail.com");
-        // No se asocian reservas por defecto aquí, se hará en la prueba específica
+        sitioPersistido = new SitioInteresEntity();
+        sitioPersistido.setId(1L);
+        sitioPersistido.setNombre("Parque Central");
+        sitioPersistido.setUbicacion("Calle 45 #20");
+        sitioPersistido.setTiempoCaminando(5);
+
+        when(sitioRepo.save(any(SitioInteresEntity.class))).thenAnswer(inv -> {
+            SitioInteresEntity s = inv.getArgument(0);
+            if (s.getId() == null)
+                s.setId(10L);
+            return s;
+        });
+
+        when(sitioRepo.findById(anyLong())).thenReturn(Optional.empty());
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitioPersistido));
+
+        when(sitioRepo.existsByNombreIgnoreCase(anyString())).thenReturn(false);
+        when(sitioRepo.countViviendasAsociadas(anyLong())).thenReturn(0L);
     }
 
     @Test
-    void createEstudiante_success() throws IllegalOperationException {
-        when(estudianteRepo.findByCorreo("juan@mail.com")).thenReturn(Optional.empty());
-        when(estudianteRepo.save(any(EstudianteEntity.class))).thenAnswer(inv -> inv.getArgument(0)); // Simula guardar
+    void crearSitio_success() {
+        SitioInteresEntity in = new SitioInteresEntity();
+        in.setNombre("Museo Arte");
+        in.setUbicacion("Cra 10 #15");
+        in.setTiempoCaminando(12);
 
-        EstudianteEntity creado = estudianteService.createEstudiante(estudiante);
+        SitioInteresEntity creado = sitioService.createSitioInteres(in);
 
-        assertThat(creado).isNotNull();
-        assertThat(creado.getNombre()).isEqualTo("Juan");
-        verify(estudianteRepo).save(estudiante); // Verifica que se llamó a save con el objeto estudiante
+        assertThat(creado.getId()).isEqualTo(10L);
+        assertThat(creado.getNombre()).isEqualTo("Museo Arte");
+        verify(sitioRepo).existsByNombreIgnoreCase("Museo Arte");
+        verify(sitioRepo).save(in);
     }
 
     @Test
-    void createEstudiante_correoDuplicado_debeLanzar() {
-        // Simula que ya existe un estudiante con ese correo
-        when(estudianteRepo.findByCorreo("juan@mail.com")).thenReturn(Optional.of(estudiante));
+    void crearSitio_nombreDuplicado_lanzaExcepcion() {
+        when(sitioRepo.existsByNombreIgnoreCase("Parque Central")).thenReturn(true);
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> estudianteService.createEstudiante(estudiante));
+        SitioInteresEntity in = new SitioInteresEntity();
+        in.setNombre("Parque Central");
+        in.setUbicacion("Cra 5 #10");
+        in.setTiempoCaminando(10);
 
-        // Ajusta el mensaje esperado para que coincida exactamente con el lanzado
-        assertThat(ex.getMessage().toLowerCase()).contains("el correo ya está registrado");
-        verify(estudianteRepo, never()).save(any()); // Verifica que no se intentó guardar
+        var ex = assertThrows(IllegalArgumentException.class, () -> sitioService.createSitioInteres(in));
+        assertThat(ex.getMessage()).contains("Ya existe un SitioInteres");
+        verify(sitioRepo, never()).save(any());
     }
 
     @Test
-    void deleteEstudiante_conReservasAsociadas_debeLanzar() {
-        // Simula que el estudiante existe
-        when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudiante));
-        // Simula que el repositorio de reservas encuentra reservas para este estudiante
-        when(reservaRepo.findByEstudianteId(1L)).thenReturn(List.of(new ReservaEntity())); // Devuelve una lista NO vacía
+    void actualizar_nombreDuplicado_debeLanzar() {
+        SitioInteresEntity updates = new SitioInteresEntity();
+        updates.setNombre("Otro Nombre");
+        updates.setUbicacion("Nueva Dir");
+        updates.setTiempoCaminando(8);
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> estudianteService.deleteEstudiante(1L));
+        when(sitioRepo.existsByNombreIgnoreCase("Otro Nombre")).thenReturn(true);
 
-        assertThat(ex.getMessage()).contains("No se puede eliminar el estudiante con reservas");
-        verify(estudianteRepo, never()).delete(any()); // Verifica que no se llamó a delete
-        verify(reservaRepo).findByEstudianteId(1L); // Verifica que se consultaron las reservas
+        var ex = assertThrows(IllegalArgumentException.class, () -> sitioService.updateSitioInteres(1L, updates));
+        assertThat(ex.getMessage()).contains("Ya existe otro SitioInteres");
+        verify(sitioRepo, never()).save(any());
     }
 
     @Test
-    void deleteEstudiante_success() throws IllegalOperationException {
-        // Simula que el estudiante existe
-        when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudiante));
-        // Simula que el repositorio de reservas NO encuentra reservas
-        when(reservaRepo.findByEstudianteId(1L)).thenReturn(Collections.emptyList()); // Devuelve lista VACÍA
+    void eliminar_conViviendasAsociadas_debeLanzar() {
+        when(sitioRepo.countViviendasAsociadas(1L)).thenReturn(2L);
 
-        // Llama al método a probar
-        estudianteService.deleteEstudiante(1L);
-
-        // Verifica que se llamó a delete con el OBJETO estudiante encontrado
-        verify(estudianteRepo).delete(estudiante);
-        verify(estudianteRepo, never()).deleteById(anyLong()); // Asegura que no se llamó a deleteById
-        verify(reservaRepo).findByEstudianteId(1L); // Verifica que se consultaron las reservas
+        var ex = assertThrows(IllegalStateException.class, () -> sitioService.deleteSitioInteres(1L));
+        assertThat(ex.getMessage()).contains("tiene viviendas asociadas");
+        verify(sitioRepo, never()).delete(any());
     }
 
     @Test
-    void deleteEstudiante_noEncontrado_debeLanzar() {
-        // Simula que el estudiante NO existe
-        when(estudianteRepo.findById(1L)).thenReturn(Optional.empty());
-
-        // El servicio lanza IllegalArgumentException si no lo encuentra
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> estudianteService.deleteEstudiante(1L));
-
-        assertThat(ex.getMessage()).contains("Estudiante no encontrado con ID: 1");
-        verify(estudianteRepo, never()).delete(any()); // Verifica que no se intentó borrar
-        verify(reservaRepo, never()).findByEstudianteId(anyLong()); // Verifica que no se buscaron reservas
+    void eliminar_sinViviendas_debeEliminar() {
+        sitioService.deleteSitioInteres(1L);
+        verify(sitioRepo).delete(sitioPersistido);
     }
 }
