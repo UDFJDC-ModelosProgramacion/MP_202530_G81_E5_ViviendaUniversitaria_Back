@@ -64,7 +64,7 @@ public class EstudianteController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EstudianteDTO update(@PathVariable Long id, @RequestBody EstudianteDTO dto)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException {
         try {
             EstudianteEntity entity = modelMapper.map(dto, EstudianteEntity.class);
             EstudianteEntity updated = estudianteService.actualizar(id, entity);
@@ -78,7 +78,7 @@ public class EstudianteController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException {
         try {
             estudianteService.eliminar(id);
         } catch (IllegalArgumentException e) {

@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/estancias")
@@ -31,7 +30,7 @@ public class EstanciaController {
         List<EstanciaEntity> list = estanciaService.obtenerTodas();
         return list.stream()
                 .map(e -> modelMapper.map(e, EstanciaDTO.class))
-                .collect(Collectors.toList());
+                .toList(); 
     }
 
     @GetMapping("/{id}")

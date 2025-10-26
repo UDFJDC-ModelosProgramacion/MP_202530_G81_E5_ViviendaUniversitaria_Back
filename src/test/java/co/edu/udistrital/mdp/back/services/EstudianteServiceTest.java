@@ -6,6 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream; 
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -38,8 +43,6 @@ class EstudianteServiceTest {
         estudianteValido.setTelefono("3001234567");
         estudianteValido.setUniversidad("Universidad Distrital");
     }
-
-    // ==================== PRUEBAS DE CREAR ====================
 
     @Test
     @DisplayName("Crear estudiante con datos válidos")
@@ -92,110 +95,38 @@ class EstudianteServiceTest {
         assertEquals("Entidad Estudiante es obligatoria", exception.getMessage());
     }
 
-    @Test
-    @DisplayName("Crear estudiante con nombre nulo - debería lanzar excepción")
-    void crear_ConNombreNulo_DeberiaLanzarExcepcion() {
+    private static Stream<Arguments> provideInvalidStudentDataForCreation() {
+        return Stream.of(
+            Arguments.of(null, "test@example.com", "Nombre obligatorio"), // Nombre nulo
+            Arguments.of("   ", "test@example.com", "Nombre obligatorio"), // Nombre vacío
+            Arguments.of("A".repeat(151), "test@example.com", "Nombre excede 150 caracteres"), // Nombre largo
+            Arguments.of("Test", null, "Correo obligatorio"), // Correo nulo
+            Arguments.of("Test", "   ", "Correo obligatorio"), // Correo vacío
+            Arguments.of("Test", "correosinvalido.com", "Correo inválido"), // Correo sin @
+            Arguments.of("Test", "a".repeat(140) + "@example.com", "Correo inválido") // Correo largo (ejemplo > 150)
+        );
+    }
+
+
+    @ParameterizedTest(name = "[{index}] Nombre=\"{0}\", Correo=\"{1}\" -> Esperado=\"{2}\"")
+    @MethodSource("provideInvalidStudentDataForCreation")
+    @DisplayName("Crear estudiante con datos inválidos - debería lanzar IllegalArgumentException")
+    void crear_ConDatosInvalidos_DeberiaLanzarExcepcion(String nombre, String correo, String mensajeEsperado) {
         // Arrange
         EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre(null);
-        estudiante.setCorreo("test@example.com");
+        estudiante.setNombre(nombre);
+        estudiante.setCorreo(correo);
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> estudianteService.crear(estudiante));
-        assertEquals("Nombre obligatorio", exception.getMessage());
+        assertEquals(mensajeEsperado, exception.getMessage());
+
+
+        verify(estudianteRepo, never()).save(any(EstudianteEntity.class));
     }
 
-    @Test
-    @DisplayName("Crear estudiante con nombre vacío - debería lanzar excepción")
-    void crear_ConNombreVacio_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("   ");
-        estudiante.setCorreo("test@example.com");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Nombre obligatorio", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Crear estudiante con nombre mayor a 150 caracteres - debería lanzar excepción")
-    void crear_ConNombreMuyLargo_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("A".repeat(151));
-        estudiante.setCorreo("test@example.com");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Nombre excede 150 caracteres", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Crear estudiante con correo nulo - debería lanzar excepción")
-    void crear_ConCorreoNulo_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("Test");
-        estudiante.setCorreo(null);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Correo obligatorio", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Crear estudiante con correo vacío - debería lanzar excepción")
-    void crear_ConCorreoVacio_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("Test");
-        estudiante.setCorreo("   ");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Correo obligatorio", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Crear estudiante con correo sin @ - debería lanzar excepción")
-    void crear_ConCorreoSinArroba_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("Test");
-        estudiante.setCorreo("correosinvalido.com");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Correo inválido", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Crear estudiante con correo mayor a 150 caracteres - debería lanzar excepción")
-    void crear_ConCorreoMuyLargo_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity estudiante = new EstudianteEntity();
-        estudiante.setNombre("Test");
-        estudiante.setCorreo("a".repeat(140) + "@example.com");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.crear(estudiante));
-        assertEquals("Correo inválido", exception.getMessage());
-    }
 
     @Test
     @DisplayName("Crear estudiante con correo duplicado - debería lanzar excepción")
@@ -215,7 +146,6 @@ class EstudianteServiceTest {
         verify(estudianteRepo, never()).save(any());
     }
 
-    // ==================== PRUEBAS DE OBTENER POR ID ====================
 
     @Test
     @DisplayName("Obtener estudiante por ID existente - debería retornar estudiante")
@@ -245,8 +175,6 @@ class EstudianteServiceTest {
                 () -> estudianteService.obtenerPorId(999L));
         assertEquals("Estudiante no encontrado con ID: 999", exception.getMessage());
     }
-
-    // ==================== PRUEBAS DE LISTAR TODOS ====================
 
     @Test
     @DisplayName("Listar todos los estudiantes - debería retornar lista")
@@ -283,8 +211,6 @@ class EstudianteServiceTest {
         assertTrue(resultado.isEmpty());
     }
 
-    // ==================== PRUEBAS DE ACTUALIZAR ====================
-
     @Test
     @DisplayName("Actualizar estudiante con datos válidos - debería actualizar")
     void actualizar_ConDatosValidos_DeberiaActualizarEstudiante() {
@@ -295,7 +221,7 @@ class EstudianteServiceTest {
         updates.setUniversidad("Universidad Nacional");
 
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
-        when(estudianteRepo.save(any(EstudianteEntity.class))).thenReturn(estudianteValido);
+        when(estudianteRepo.save(any(EstudianteEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         EstudianteEntity resultado = estudianteService.actualizar(1L, updates);
@@ -304,7 +230,9 @@ class EstudianteServiceTest {
         assertEquals("Juan Pérez Actualizado", resultado.getNombre());
         assertEquals("3009876543", resultado.getTelefono());
         assertEquals("Universidad Nacional", resultado.getUniversidad());
-        verify(estudianteRepo).save(estudianteValido);
+        // Verifica que el correo NO cambió si no se pasó en 'updates'
+        assertEquals("juan.perez@example.com", resultado.getCorreo());
+        verify(estudianteRepo).save(estudianteValido); // Verifica que se guardó la entidad encontrada y modificada
     }
 
     @Test
@@ -312,12 +240,12 @@ class EstudianteServiceTest {
     void actualizar_ConNuevoCorreoValido_DeberiaActualizarCorreo() {
         // Arrange
         EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("Juan Pérez");
+        updates.setNombre("Juan Pérez"); // Necesario para la validación del servicio
         updates.setCorreo("nuevo.correo@example.com");
 
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
         when(estudianteRepo.existsByCorreoIgnoreCase("nuevo.correo@example.com")).thenReturn(false);
-        when(estudianteRepo.save(any(EstudianteEntity.class))).thenReturn(estudianteValido);
+        when(estudianteRepo.save(any(EstudianteEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         EstudianteEntity resultado = estudianteService.actualizar(1L, updates);
@@ -325,6 +253,7 @@ class EstudianteServiceTest {
         // Assert
         assertEquals("nuevo.correo@example.com", resultado.getCorreo());
         verify(estudianteRepo).existsByCorreoIgnoreCase("nuevo.correo@example.com");
+        verify(estudianteRepo).save(estudianteValido);
     }
 
     @Test
@@ -332,17 +261,18 @@ class EstudianteServiceTest {
     void actualizar_ConMismoCorreo_NoDeberiaValidarDuplicado() {
         // Arrange
         EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("Juan Pérez");
-        updates.setCorreo("juan.perez@example.com");
+        updates.setNombre("Juan Pérez Actualizado"); // Nombre válido
+        updates.setCorreo("juan.perez@example.com"); // Mismo correo
 
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
-        when(estudianteRepo.save(any(EstudianteEntity.class))).thenReturn(estudianteValido);
+        when(estudianteRepo.save(any(EstudianteEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         estudianteService.actualizar(1L, updates);
 
-        // Assert
         verify(estudianteRepo, never()).existsByCorreoIgnoreCase(anyString());
+        verify(estudianteRepo).save(estudianteValido); 
+        assertEquals("Juan Pérez Actualizado", estudianteValido.getNombre()); 
     }
 
     @Test
@@ -350,8 +280,8 @@ class EstudianteServiceTest {
     void actualizar_ConCorreoDuplicado_DeberiaLanzarExcepcion() {
         // Arrange
         EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("Juan Pérez");
-        updates.setCorreo("otro@example.com");
+        updates.setNombre("Juan Pérez"); 
+        updates.setCorreo("otro@example.com"); 
 
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
         when(estudianteRepo.existsByCorreoIgnoreCase("otro@example.com")).thenReturn(true);
@@ -364,44 +294,49 @@ class EstudianteServiceTest {
         verify(estudianteRepo, never()).save(any());
     }
 
-    @Test
-    @DisplayName("Actualizar estudiante con nombre vacío - debería lanzar excepción")
-    void actualizar_ConNombreVacio_DeberiaLanzarExcepcion() {
+
+    // --- Tests parametrizados para actualizar con datos inválidos ---
+
+    private static Stream<Arguments> provideInvalidStudentDataForUpdate() {
+        return Stream.of(
+            Arguments.of(null, "nuevo@example.com", "Nombre obligatorio"), // Nombre nulo
+            Arguments.of("   ", "nuevo@example.com", "Nombre obligatorio"), // Nombre vacío
+            Arguments.of("A".repeat(151), "nuevo@example.com", "Nombre excede 150 caracteres"), // Nombre largo
+            Arguments.of("Nombre Valido", "correo sin arroba", "Correo inválido"), // Correo inválido (sin @)
+            Arguments.of("Nombre Valido", "a".repeat(140) + "@toolong.com", "Correo inválido") // Correo largo
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] Update Nombre=\"{0}\", Correo=\"{1}\" -> Esperado=\"{2}\"")
+    @MethodSource("provideInvalidStudentDataForUpdate")
+    @DisplayName("Actualizar estudiante con datos inválidos - debería lanzar IllegalArgumentException")
+    void actualizar_ConDatosInvalidos_DeberiaLanzarExcepcion(String nombre, String correo, String mensajeEsperado) {
         // Arrange
         EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("   ");
+        updates.setNombre(nombre);
+        updates.setCorreo(correo); // Pasamos el correo para probar su validación
 
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
+        // Mock para el caso de correo inválido (no llega a verificar existencia)
+        // Mock para el caso de correo duplicado (se prueba en otro test)
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> estudianteService.actualizar(1L, updates));
-        assertEquals("Nombre obligatorio", exception.getMessage());
+        assertEquals(mensajeEsperado, exception.getMessage());
+        verify(estudianteRepo, never()).save(any());
     }
 
-    @Test
-    @DisplayName("Actualizar estudiante con nombre muy largo - debería lanzar excepción")
-    void actualizar_ConNombreMuyLargo_DeberiaLanzarExcepcion() {
-        // Arrange
-        EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("A".repeat(151));
-
-        when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> estudianteService.actualizar(1L, updates));
-        assertEquals("Nombre excede 150 caracteres", exception.getMessage());
-    }
+    // --- Fin tests parametrizados para actualizar ---
 
     @Test
     @DisplayName("Actualizar estudiante inexistente - debería lanzar excepción")
     void actualizar_ConIdInexistente_DeberiaLanzarExcepcion() {
         // Arrange
         EstudianteEntity updates = new EstudianteEntity();
-        updates.setNombre("Test");
+        updates.setNombre("Test Valido"); // Datos válidos para el DTO
+        updates.setCorreo("valido@example.com");
 
         when(estudianteRepo.findById(999L)).thenReturn(Optional.empty());
 
@@ -410,9 +345,8 @@ class EstudianteServiceTest {
                 IllegalArgumentException.class,
                 () -> estudianteService.actualizar(999L, updates));
         assertEquals("Estudiante no encontrado con ID: 999", exception.getMessage());
+        verify(estudianteRepo, never()).save(any());
     }
-
-    // ==================== PRUEBAS DE ELIMINAR ====================
 
     @Test
     @DisplayName("Eliminar estudiante sin reservas ni estancias - debería eliminar")
@@ -435,6 +369,7 @@ class EstudianteServiceTest {
         // Arrange
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
         when(estudianteRepo.countReservasActivasByEstudianteId(1L)).thenReturn(2L);
+        // No necesitamos mockear countEstancias si la primera validación falla
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
@@ -449,8 +384,8 @@ class EstudianteServiceTest {
     void eliminar_ConEstanciasActivas_DeberiaLanzarExcepcion() {
         // Arrange
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudianteValido));
-        when(estudianteRepo.countReservasActivasByEstudianteId(1L)).thenReturn(0L);
-        when(estudianteRepo.countEstanciasActivasByEstudianteId(1L)).thenReturn(1L);
+        when(estudianteRepo.countReservasActivasByEstudianteId(1L)).thenReturn(0L); // Pasa la primera validación
+        when(estudianteRepo.countEstanciasActivasByEstudianteId(1L)).thenReturn(1L); // Falla aquí
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
