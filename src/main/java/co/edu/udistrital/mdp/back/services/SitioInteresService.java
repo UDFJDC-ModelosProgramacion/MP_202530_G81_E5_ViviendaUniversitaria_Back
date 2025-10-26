@@ -2,7 +2,6 @@ package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
-import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,6 @@ import java.util.List;
 public class SitioInteresService {
 
     private final SitioInteresRepository sitioRepo;
-    private final ViviendaRepository viviendaRepo;
 
     /**
      * CREATE - crea un sitio de interés con validaciones.
