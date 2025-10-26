@@ -64,7 +64,7 @@ public class ReservaController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ReservaDTO update(@PathVariable Long id, @RequestBody ReservaDTO dto)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException {
         try {
             ReservaEntity entity = modelMapper.map(dto, ReservaEntity.class);
             ReservaEntity updated = reservaService.updateReserva(id, entity);
@@ -78,7 +78,7 @@ public class ReservaController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException{
         try {
             reservaService.deleteReserva(id);
         } catch (IllegalArgumentException e) {

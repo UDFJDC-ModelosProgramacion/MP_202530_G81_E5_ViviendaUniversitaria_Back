@@ -20,6 +20,8 @@ import java.util.List;
 @RequestMapping("/comentarios")
 public class ComentarioController {
 
+    private static final String MSG_COMENTARIO_NO_ENCONTRADO = "Comentario no encontrado con id: ";
+
     @Autowired
     private ComentarioService comentarioService;
 
@@ -49,7 +51,7 @@ public class ComentarioController {
             ComentarioEntity comentario = comentarioService.obtenerComentarioPorId(id);
             return modelMapper.map(comentario, ComentarioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 
@@ -72,6 +74,7 @@ public class ComentarioController {
     @GetMapping(value = "/estudiante/{estudianteId}")
     @ResponseStatus(code = HttpStatus.OK)
     public List<ComentarioDTO> findByEstudiante(@PathVariable("estudianteId") Long estudianteId) {
+        // Considera manejar EntityNotFoundException si el estudiante no existe
         List<ComentarioEntity> comentarios = comentarioService.obtenerComentariosPorEstudiante(estudianteId);
         return modelMapper.map(comentarios, new TypeToken<List<ComentarioDTO>>() {
         }.getType());
@@ -115,7 +118,7 @@ public class ComentarioController {
                     comentarioEntity);
             return modelMapper.map(comentarioActualizado, ComentarioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 
@@ -133,7 +136,7 @@ public class ComentarioController {
             ComentarioEntity comentario = comentarioService.actualizarContenido(id, usuarioId, nuevoContenido);
             return modelMapper.map(comentario, ComentarioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 
@@ -151,7 +154,7 @@ public class ComentarioController {
             ComentarioEntity comentario = comentarioService.actualizarCalificacion(id, usuarioId, nuevaCalificacion);
             return modelMapper.map(comentario, ComentarioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 
@@ -169,8 +172,9 @@ public class ComentarioController {
         try {
             comentarioService.eliminarComentario(id, usuarioId, esAdministrador);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         } catch (IllegalStateException e) {
+            // Re-lanzar IllegalStateException (es unchecked)
             throw new IllegalStateException("No se puede eliminar el comentario: " + e.getMessage());
         }
     }
@@ -187,7 +191,7 @@ public class ComentarioController {
         try {
             comentarioService.eliminarComentarioComoAutor(id, usuarioId);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 
@@ -201,7 +205,7 @@ public class ComentarioController {
         try {
             comentarioService.eliminarComentarioComoAdministrador(id);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Comentario no encontrado con id: " + id);
+            throw new EntityNotFoundException(MSG_COMENTARIO_NO_ENCONTRADO + id);
         }
     }
 }
