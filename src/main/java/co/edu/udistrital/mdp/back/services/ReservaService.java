@@ -2,11 +2,10 @@ package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.ReservaEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
+import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
 import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
-import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-
+import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,60 +19,72 @@ import java.util.List;
 public class ReservaService {
 
     private final ReservaRepository reservaRepo;
-    private final EstudianteRepository estudianteRepo;
     private final ViviendaRepository viviendaRepo;
+    private final EstudianteRepository estudianteRepo;
 
     /**
-     * CREATE - Crear reserva validando:
-     * - Estudiante y Vivienda existen
-     * - Vivienda disponible
-     * - Fechas válidas
-     * 
-     * @throws IllegalOperationException
+     * CREATE - crea una reserva validando reglas:
+     * - estudiante y vivienda existen
+     * - fechas válidas (inicio antes de fin, no nulas)
+     * - no se solapan con reservas activas existentes
      */
-    public ReservaEntity createReserva(ReservaEntity in) throws IllegalOperationException {
+    public ReservaEntity createReserva(ReservaEntity in) {
         if (in == null)
-            throw new IllegalArgumentException("Entidad Reserva obligatoria");
-        if (in.getEstudiante() == null || in.getEstudiante().getId() == null)
-            throw new IllegalArgumentException("Debe asociarse un estudiante válido");
-        if (in.getVivienda() == null || in.getVivienda().getId() == null)
-            throw new IllegalArgumentException("Debe asociarse una vivienda válida");
+            throw new IllegalArgumentException("Entidad Reserva es obligatoria");
 
-        estudianteRepo.findById(in.getEstudiante().getId())
-        .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        // Validar estudiante
+        if (in.getEstudiante() == null || in.getEstudiante().getId() == null)
+            throw new IllegalArgumentException("Debe indicar el estudiante que realiza la reserva");
+
+        EstudianteEntity estudiante = estudianteRepo.findById(in.getEstudiante().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+
+        // Validar vivienda
+        if (in.getVivienda() == null || in.getVivienda().getId() == null)
+            throw new IllegalArgumentException("Debe indicar la vivienda a reservar");
+
         ViviendaEntity vivienda = viviendaRepo.findById(in.getVivienda().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Vivienda no encontrada"));
 
-        if (!Boolean.TRUE.equals(vivienda.getDisponible())) {
-            throw new IllegalOperationException("La vivienda no está disponible para reservar");
-        }
-
+        // Validar fechas
         if (in.getFechaInicio() == null || in.getFechaFin() == null)
-            throw new IllegalArgumentException("Las fechas de la reserva son obligatorias");
-        if (!in.getFechaInicio().isBefore(in.getFechaFin()))
-            throw new IllegalArgumentException("La fecha de inicio debe ser anterior a la fecha de fin");
-        if (in.getFechaInicio().isBefore(LocalDate.now()))
-            throw new IllegalArgumentException("No se puede reservar una fecha en el pasado");
+            throw new IllegalArgumentException("Las fechas de inicio y fin son obligatorias");
+        if (in.getFechaInicio().isAfter(in.getFechaFin()))
+            throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin");
 
-        in.setEstado("Pendiente");
-        ReservaEntity saved = reservaRepo.save(in);
+        // Validar solapamiento con otras reservas activas (pendiente o confirmada)
+        boolean existeActiva = reservaRepo.existeReservaActiva(
+                estudiante.getId(),
+                vivienda.getId(),
+                in.getFechaInicio(),
+                in.getFechaFin());
 
-        // Marcar vivienda como no disponible
-        vivienda.setDisponible(false);
-        viviendaRepo.save(vivienda);
+        if (existeActiva)
+            throw new IllegalArgumentException(
+                    "Ya existe una reserva activa para este estudiante y vivienda en el rango de fechas indicado");
 
-        return saved;
+        // Validar estado
+        String estado = safeTrim(in.getEstado());
+        if (estado.isBlank())
+            estado = "Pendiente";
+        in.setEstado(estado);
+
+        // Asignar relaciones seguras
+        in.setEstudiante(estudiante);
+        in.setVivienda(vivienda);
+
+        return reservaRepo.save(in);
     }
 
     /**
-     * READ - Obtener todas las reservas
+     * READ - obtener todas las reservas
      */
-    public List<ReservaEntity> getReservas() {
+    public List<ReservaEntity> getAllReservas() {
         return reservaRepo.findAll();
     }
 
     /**
-     * READ - Obtener reserva por ID
+     * READ - obtener reserva por id
      */
     public ReservaEntity getReserva(Long id) {
         return reservaRepo.findById(id)
@@ -81,37 +92,59 @@ public class ReservaService {
     }
 
     /**
-     * UPDATE - Cambiar estado de la reserva (Confirmada, Cancelada, Finalizada)
+     * UPDATE - actualiza estado o fechas de una reserva existente
      */
-    @Transactional
-    public ReservaEntity updateReserva(Long id, ReservaEntity in) {
+    public ReservaEntity updateReserva(Long id, ReservaEntity updates) {
         ReservaEntity found = getReserva(id);
 
-        if (in.getFechaInicio() != null)
-            found.setFechaInicio(in.getFechaInicio());
-        if (in.getFechaFin() != null)
-            found.setFechaFin(in.getFechaFin());
-        if (in.getEstado() != null)
-            found.setEstado(in.getEstado());
+        // Actualizar fechas si vienen y son válidas
+        if (updates.getFechaInicio() != null && updates.getFechaFin() != null) {
+            if (updates.getFechaInicio().isAfter(updates.getFechaFin()))
+                throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin");
+            found.setFechaInicio(updates.getFechaInicio());
+            found.setFechaFin(updates.getFechaFin());
+        }
+
+        // Actualizar estado si viene y es válido
+        if (updates.getEstado() != null) {
+            String nuevoEstado = safeTrim(updates.getEstado());
+            if (nuevoEstado.isBlank())
+                throw new IllegalArgumentException("El estado no puede estar vacío");
+            found.setEstado(nuevoEstado);
+        }
 
         return reservaRepo.save(found);
     }
 
     /**
-     * DELETE - Eliminar reserva solo si está cancelada
-     * 
-     * @throws IllegalOperationException
+     * DELETE - elimina una reserva si ya está cancelada o finalizada.
      */
-    public void deleteReserva(Long id) throws IllegalOperationException {
+    public void deleteReserva(Long id) {
         ReservaEntity found = getReserva(id);
-        if (!"Cancelada".equals(found.getEstado())) {
-            throw new IllegalOperationException("Solo se pueden eliminar reservas canceladas");
+
+        String estado = safeTrim(found.getEstado()).toLowerCase();
+        if (estado.equals("confirmada") || estado.equals("pendiente")) {
+            throw new IllegalStateException("No se puede eliminar una reserva activa (confirmada o pendiente)");
         }
 
-        ViviendaEntity vivienda = found.getVivienda();
-        vivienda.setDisponible(true);
-        viviendaRepo.save(vivienda);
-
         reservaRepo.delete(found);
+    }
+
+    /**
+     * Obtener reservas activas actualmente (confirmadas)
+     */
+    public List<ReservaEntity> getReservasActivasHoy() {
+        return reservaRepo.findReservasActivasHoy();
+    }
+
+    /**
+     * Obtener reservas pendientes
+     */
+    public List<ReservaEntity> getReservasPendientes() {
+        return reservaRepo.findReservasPendientes();
+    }
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
     }
 }
