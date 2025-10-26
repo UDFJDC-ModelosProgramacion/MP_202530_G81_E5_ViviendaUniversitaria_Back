@@ -7,18 +7,17 @@ import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
 import co.edu.udistrital.mdp.back.repositories.EstanciaRepository;
 import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
-// Ya no necesitas importar EstanciaService
-// import co.edu.udistrital.mdp.back.services.EstanciaService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings; // Importar
-import org.mockito.quality.Strictness; // Importar
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,9 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-//@SuppressWarnings("unused") // Puedes quitarla si ya no es necesaria
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) // Añadir Lenient
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 class EstanciaServiceTest {
 
     @Mock
@@ -74,7 +72,6 @@ class EstanciaServiceTest {
         when(estudianteRepo.findById(1L)).thenReturn(Optional.of(estudiantePersistido));
         when(viviendaRepo.findById(100L)).thenReturn(Optional.of(viviendaDisponible));
         when(viviendaRepo.findById(101L)).thenReturn(Optional.of(viviendaNoDisponible));
-
     }
 
     @Test
@@ -83,8 +80,6 @@ class EstanciaServiceTest {
         in.setEstudianteArrendador(estudiantePersistido);
         in.setViviendaArrendada(viviendaDisponible);
         in.setTiempoEstancia(6); // Tiempo válido
-
-        // Los mocks necesarios ya están en setup()
 
         EstanciaEntity creado = estanciaService.crearEstancia(in);
 
@@ -104,8 +99,6 @@ class EstanciaServiceTest {
         in.setEstudianteArrendador(estudiantePersistido);
         in.setViviendaArrendada(viviendaNoDisponible); // Usa la vivienda no disponible
         in.setTiempoEstancia(3);
-
-        // Los mocks necesarios ya están en setup()
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> estanciaService.crearEstancia(in));
@@ -159,11 +152,22 @@ class EstanciaServiceTest {
         in.setViviendaArrendada(viviendaDisponible);
         in.setTiempoEstancia(48); // > 36
 
-        // Los mocks de existencia ya están en setup()
-
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> estanciaService.crearEstancia(in));
         assertThat(ex.getMessage()).contains("tiempoEstancia no debe exceder 36 meses");
+        verify(estanciaRepo, never()).save(any());
+    }
+
+    @Test
+    void crearEstancia_tiempoNull_debeLanzar() {
+        EstanciaEntity in = new EstanciaEntity();
+        in.setEstudianteArrendador(estudiantePersistido);
+        in.setViviendaArrendada(viviendaDisponible);
+        in.setTiempoEstancia(null);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> estanciaService.crearEstancia(in));
+        assertThat(ex.getMessage()).contains("tiempoEstancia debe ser >= 1");
         verify(estanciaRepo, never()).save(any());
     }
 
@@ -204,5 +208,117 @@ class EstanciaServiceTest {
                 () -> estanciaService.actualizar(11L, updates));
         assertThat(ex.getMessage()).contains("No se permite cambiar viviendaArrendada cuando la estancia tiene contrato asociado");
         verify(estanciaRepo, never()).save(any()); // No debe intentar guardar
+    }
+
+    @Test
+    void actualizar_cambiarViviendaValida_happyPath() {
+        // preparar original sin contrato
+        EstanciaEntity original = new EstanciaEntity(estudiantePersistido, viviendaDisponible, 6);
+        original.setId(21L);
+        ViviendaEntity vieja = new ViviendaEntity();
+        vieja.setId(100L);
+        vieja.setDisponible(false); // ocupada actualmente
+        original.setViviendaArrendada(vieja);
+
+        when(estanciaRepo.findById(21L)).thenReturn(Optional.of(original));
+
+        // nueva vivienda disponible
+        ViviendaEntity nueva = new ViviendaEntity();
+        nueva.setId(300L);
+        nueva.setDisponible(true);
+        when(viviendaRepo.findById(300L)).thenReturn(Optional.of(nueva));
+
+        EstanciaEntity updates = new EstanciaEntity();
+        ViviendaEntity nvRef = new ViviendaEntity();
+        nvRef.setId(300L);
+        updates.setViviendaArrendada(nvRef);
+        updates.setTiempoEstancia(8);
+
+        when(estanciaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EstanciaEntity res = estanciaService.actualizar(21L, updates);
+
+        // vieja vivienda liberada, nueva ocupada
+        assertThat(res.getViviendaArrendada().getId()).isEqualTo(300L);
+        verify(viviendaRepo).save(vieja); // liberada -> disponible=true guardada
+        verify(viviendaRepo).save(nueva); // ocupada -> disponible=false guardada
+        verify(estanciaRepo).save(original);
+    }
+
+    @Test
+    void completarEstancia_noActiva_debeLanzar() {
+        EstanciaEntity e = new EstanciaEntity(estudiantePersistido, viviendaDisponible, 3);
+        e.setId(40L);
+        e.setEstado(EstanciaEntity.EstadoEstancia.COMPLETADA);
+        when(estanciaRepo.findById(40L)).thenReturn(Optional.of(e));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> estanciaService.completarEstancia(40L));
+        assertThat(ex.getMessage()).contains("No se puede completar una estancia con estado");
+        verify(viviendaRepo, never()).save(any());
+    }
+
+    @Test
+    void completarEstancia_happyPath() {
+        EstanciaEntity e = new EstanciaEntity(estudiantePersistido, viviendaDisponible, 3);
+        e.setId(41L);
+        e.setEstado(EstanciaEntity.EstadoEstancia.ACTIVA);
+        when(estanciaRepo.findById(41L)).thenReturn(Optional.of(e));
+        when(estanciaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(viviendaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EstanciaEntity res = estanciaService.completarEstancia(41L);
+
+        assertThat(res.getEstado()).isEqualTo(EstanciaEntity.EstadoEstancia.COMPLETADA);
+        assertThat(res.getFechaFin()).isNotNull();
+        verify(viviendaRepo).save(viviendaDisponible);
+        verify(estanciaRepo).save(res);
+    }
+
+    @Test
+    void cancelarEstancia_completada_debeLanzar() {
+        EstanciaEntity e = new EstanciaEntity(estudiantePersistido, viviendaDisponible, 3);
+        e.setId(42L);
+        e.setEstado(EstanciaEntity.EstadoEstancia.COMPLETADA);
+        when(estanciaRepo.findById(42L)).thenReturn(Optional.of(e));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> estanciaService.cancelarEstancia(42L));
+        assertThat(ex.getMessage()).contains("No se puede cancelar una estancia ya completada");
+        verify(viviendaRepo, never()).save(any());
+    }
+
+    @Test
+    void cancelarEstancia_happyPath() {
+        EstanciaEntity e = new EstanciaEntity(estudiantePersistido, viviendaDisponible, 3);
+        e.setId(43L);
+        e.setEstado(EstanciaEntity.EstadoEstancia.ACTIVA);
+        when(estanciaRepo.findById(43L)).thenReturn(Optional.of(e));
+        when(estanciaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(viviendaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EstanciaEntity res = estanciaService.cancelarEstancia(43L);
+
+        assertThat(res.getEstado()).isEqualTo(EstanciaEntity.EstadoEstancia.CANCELADA);
+        assertThat(res.getFechaFin()).isNotNull();
+        verify(viviendaRepo).save(viviendaDisponible);
+        verify(estanciaRepo).save(res);
+    }
+
+    @Test
+    void obtenerEstanciasActivas_delegaARepo() {
+        when(estanciaRepo.findByEstudianteArrendador_IdAndEstado(1L, EstanciaEntity.EstadoEstancia.ACTIVA))
+                .thenReturn(Collections.emptyList());
+
+        List<EstanciaEntity> list = estanciaService.obtenerEstanciasActivas(1L);
+        assertThat(list).isNotNull();
+        verify(estanciaRepo).findByEstudianteArrendador_IdAndEstado(1L, EstanciaEntity.EstadoEstancia.ACTIVA);
+    }
+
+    @Test
+    void obtenerTodas_delegaARepo() {
+        when(estanciaRepo.findAll()).thenReturn(Collections.emptyList());
+        estanciaService.obtenerTodas();
+        verify(estanciaRepo).findAll();
     }
 }

@@ -4,16 +4,17 @@ import co.edu.udistrital.mdp.back.entities.UniversidadCercaEntity;
 import co.edu.udistrital.mdp.back.repositories.UniversidadCercaRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings; 
-import org.mockito.quality.Strictness; 
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) 
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 class UniversidadCercaServiceTest {
 
     @Mock
@@ -35,8 +36,6 @@ class UniversidadCercaServiceTest {
     private UniversidadCercaService universidadService;
 
     private UniversidadCercaEntity uniPersistida;
-    //@SuppressWarnings("unused") // Puedes quitarla
-    //private List<ViviendaEntity> viviendas = new ArrayList<>(); // No parece usarse
 
     @BeforeEach
     void setup() {
@@ -45,7 +44,7 @@ class UniversidadCercaServiceTest {
         uniPersistida.setNombre("U Test");
         uniPersistida.setCiudad("CiudadX");
 
-        // Simula guardado
+        // Simula guardado común
         when(universidadRepo.save(any(UniversidadCercaEntity.class))).thenAnswer(inv -> {
             UniversidadCercaEntity u = inv.getArgument(0);
             if (u.getId() == null) u.setId(7L); // Asigna ID si es nueva
@@ -56,9 +55,8 @@ class UniversidadCercaServiceTest {
         when(universidadRepo.existsByNombreIgnoreCase(anyString())).thenReturn(false);
         when(viviendaRepo.countByUniversidadCercaId(anyLong())).thenReturn(0L);
         when(viviendaRepo.countEstanciasByUniversidadCercaId(anyLong())).thenReturn(0L);
-        when(universidadRepo.findById(anyLong())).thenReturn(Optional.empty()); // Por defecto no encuentra
-        when(universidadRepo.findById(3L)).thenReturn(Optional.of(uniPersistida)); // Sí encuentra la del setup
-
+        when(universidadRepo.findById(anyLong())).thenReturn(Optional.empty());
+        when(universidadRepo.findById(3L)).thenReturn(Optional.of(uniPersistida));
     }
 
     @Test
@@ -66,8 +64,6 @@ class UniversidadCercaServiceTest {
         UniversidadCercaEntity in = new UniversidadCercaEntity();
         in.setNombre("NuevaUni");
         in.setCiudad("Bogota");
-
-        // El mock existsByNombreIgnoreCase ya está en false por defecto
 
         UniversidadCercaEntity creado = universidadService.crearUniversidad(in);
 
@@ -90,8 +86,50 @@ class UniversidadCercaServiceTest {
     }
 
     @Test
+    void crearUniversidad_nullInput_throws() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> universidadService.crearUniversidad(null));
+        assertThat(ex.getMessage()).contains("Entidad UniversidadCerca es obligatoria");
+    }
+
+    @Test
+    void crearUniversidad_nombreMuyLargo_debeLanzar() {
+        UniversidadCercaEntity in = new UniversidadCercaEntity();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 151; i++) sb.append("a");
+        in.setNombre(sb.toString());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> universidadService.crearUniversidad(in));
+        assertThat(ex.getMessage()).contains("Nombre excede 150 caracteres");
+        verify(universidadRepo, never()).save(any());
+    }
+
+    @Test
+    void obtenerPorId_encontrado() {
+        UniversidadCercaEntity res = universidadService.obtenerPorId(3L);
+        assertThat(res).isSameAs(uniPersistida);
+        verify(universidadRepo).findById(3L);
+    }
+
+    @Test
+    void obtenerPorId_noEncontrado_debeLanzar() {
+        when(universidadRepo.findById(999L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> universidadService.obtenerPorId(999L));
+        assertThat(ex.getMessage()).contains("UniversidadCerca no encontrada con ID: 999");
+    }
+
+    @Test
+    void listarTodas_delegaEnRepo() {
+        when(universidadRepo.findAll()).thenReturn(new ArrayList<>());
+        List<UniversidadCercaEntity> list = universidadService.listarTodas();
+        assertThat(list).isNotNull();
+        verify(universidadRepo).findAll();
+    }
+
+    @Test
     void actualizarNombre_duplicado_debeLanzar() {
-        // Usa uniPersistida (ID 3L, Nombre "U Test") del setup
         UniversidadCercaEntity updates = new UniversidadCercaEntity();
         updates.setNombre("UniB"); // Intenta cambiar a un nombre que ya existe
 
@@ -107,8 +145,36 @@ class UniversidadCercaServiceTest {
     }
 
     @Test
+    void actualizar_happyPath_actualizaCiudadYNombre() {
+        UniversidadCercaEntity updates = new UniversidadCercaEntity();
+        updates.setNombre("NuevoNombre");
+        updates.setCiudad("NuevaCiudad");
+
+        when(universidadRepo.existsByNombreIgnoreCase("NuevoNombre")).thenReturn(false);
+        when(universidadRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UniversidadCercaEntity res = universidadService.actualizar(3L, updates);
+
+        assertThat(res.getNombre()).isEqualTo("NuevoNombre");
+        assertThat(res.getCiudad()).isEqualTo("NuevaCiudad");
+        verify(universidadRepo).save(res);
+    }
+
+    @Test
+    void actualizar_nombreMuyLargo_debeLanzar() {
+        UniversidadCercaEntity updates = new UniversidadCercaEntity();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 151; i++) sb.append("x");
+        updates.setNombre(sb.toString());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> universidadService.actualizar(3L, updates));
+        assertThat(ex.getMessage()).contains("Nombre excede 150 caracteres");
+        verify(universidadRepo, never()).save(any());
+    }
+
+    @Test
     void eliminar_conViviendasAsociadas_debeLanzar() {
-        // Usa uniPersistida (ID 3L) del setup
         when(viviendaRepo.countByUniversidadCercaId(3L)).thenReturn(2L); // Simula que tiene 2 viviendas
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
@@ -123,8 +189,6 @@ class UniversidadCercaServiceTest {
 
     @Test
     void eliminar_conEstanciasIndirectas_debeLanzar() {
-        // Usa uniPersistida (ID 3L) del setup
-        // countByUniversidadCercaId ya devuelve 0L por defecto
         when(viviendaRepo.countEstanciasByUniversidadCercaId(3L)).thenReturn(3L); // Simula 3 estancias indirectas
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
@@ -139,9 +203,6 @@ class UniversidadCercaServiceTest {
 
     @Test
     void eliminar_sinViviendas_debeEliminar() {
-        // Usa uniPersistida (ID 3L) del setup
-        // countByUniversidadCercaId y countEstanciasByUniversidadCercaId ya devuelven 0L por defecto
-
         universidadService.eliminar(3L);
 
         verify(universidadRepo).findById(3L);
