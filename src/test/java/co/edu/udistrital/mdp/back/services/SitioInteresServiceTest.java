@@ -1,32 +1,29 @@
- 
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
+// Ya no necesitas importar EntityNotFoundException ni IllegalOperationException aquí si no las usas directamente en assertThrows
 import co.edu.udistrital.mdp.back.repositories.SitioInteresRepository;
-import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-
+import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+// Quita 'public' de la clase si usas JUnit 5
 class SitioInteresServiceTest {
 
     @Mock
     private SitioInteresRepository sitioRepo;
+
+    @Mock
+    private ViviendaRepository viviendaRepo;
 
     @InjectMocks
     private SitioInteresService sitioService;
@@ -34,48 +31,103 @@ class SitioInteresServiceTest {
     private SitioInteresEntity sitio;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
         sitio = new SitioInteresEntity();
         sitio.setId(1L);
-        sitio.setNombre("Parque Central");
-        sitio.setUbicacion("Calle 10");
+        sitio.setNombre("Biblioteca Central");
+        sitio.setUbicacion("Carrera 45");
+        sitio.setTiempoCaminando(10);
     }
 
     @Test
-    void createSitioInteres_success() throws IllegalOperationException {
-        when(sitioRepo.findByNombreContaining("Parque Central")).thenReturn(Collections.emptyList());
-        when(sitioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    // Se quita 'throws IllegalOperationException'
+    void testCreateSitioInteres_Success() {
+        when(sitioRepo.existsByNombreIgnoreCase(anyString())).thenReturn(false); // Corregido para simular que no existe
+        when(sitioRepo.save(any(SitioInteresEntity.class))).thenReturn(sitio);
 
-        SitioInteresEntity creado = sitioService.createSitioInteres(sitio);
-        assertThat(creado).isNotNull();
-        verify(sitioRepo).save(any());
+        // Llamada al método que ahora podría lanzar IllegalArgumentException (unchecked)
+        SitioInteresEntity result = sitioService.createSitioInteres(sitio);
+
+        assertNotNull(result);
+        verify(sitioRepo).save(any(SitioInteresEntity.class));
     }
 
     @Test
-    void createSitioInteres_nombreDuplicado_debeLanzar() {
-        when(sitioRepo.findByNombreContaining("Parque Central")).thenReturn(List.of(sitio));
+    void testCreateSitioInteres_NombreDuplicado() {
+        // Simula que el nombre SÍ existe para causar la excepción
+        when(sitioRepo.existsByNombreIgnoreCase(anyString())).thenReturn(true);
 
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> sitioService.createSitioInteres(sitio));
-        assertThat(ex.getMessage().toLowerCase()).contains("ya existe un sitio");
+        // El método assertThrows ya maneja la excepción esperada (IllegalArgumentException)
+        assertThrows(IllegalArgumentException.class, () -> sitioService.createSitioInteres(sitio));
     }
 
     @Test
-    void deleteSitioInteres_conViviendasAsociadas_debeLanzar() {
-        sitio.setViviendas(List.of(new ViviendaEntity()));
+    void testGetAllSitios() {
+        when(sitioRepo.findAll()).thenReturn(List.of(sitio));
+        List<SitioInteresEntity> result = sitioService.getAllSitios();
+        assertEquals(1, result.size());
+        verify(sitioRepo).findAll();
+    }
+
+    @Test
+    // Se quita 'throws EntityNotFoundException'
+    void testGetSitioInteres_Success() {
         when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
-
-        IllegalOperationException ex = assertThrows(IllegalOperationException.class,
-                () -> sitioService.deleteSitioInteres(1L));
-        assertThat(ex.getMessage().toLowerCase()).contains("tiene viviendas asociadas");
+        // La llamada puede lanzar IllegalArgumentException (unchecked) si no se encuentra
+        SitioInteresEntity result = sitioService.getSitioInteres(1L);
+        assertEquals("Biblioteca Central", result.getNombre());
     }
 
     @Test
-    void deleteSitioInteres_success() throws EntityNotFoundException, IllegalOperationException {
-        sitio.setViviendas(Collections.emptyList());
-        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+    void testGetSitioInteres_NotFound() {
+        when(sitioRepo.findById(anyLong())).thenReturn(Optional.empty());
+        // El método assertThrows maneja la excepción esperada (IllegalArgumentException)
+        assertThrows(IllegalArgumentException.class, () -> sitioService.getSitioInteres(1L));
+    }
 
+    @Test
+    // Se quita 'throws Exception'
+    void testUpdateSitioInteres_Success() {
+        SitioInteresEntity update = new SitioInteresEntity();
+        update.setNombre("Nuevo nombre");
+        update.setUbicacion("Nueva Ubicacion"); // Añadido para pasar validación
+        update.setTiempoCaminando(5); // Añadido para pasar validación
+
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+        when(sitioRepo.existsByNombreIgnoreCase("Nuevo nombre")).thenReturn(false); // Simula que el nuevo nombre no existe
+        when(sitioRepo.save(any(SitioInteresEntity.class))).thenReturn(sitio);
+
+        // La llamada puede lanzar IllegalArgumentException (unchecked)
+        SitioInteresEntity result = sitioService.updateSitioInteres(1L, update);
+
+        assertEquals("Nuevo nombre", result.getNombre());
+        verify(sitioRepo).save(any(SitioInteresEntity.class));
+    }
+
+    @Test
+    // Se quita 'throws Exception'
+    void testDeleteSitioInteres_Success() {
+        // Aseguramos que la lista exista y esté vacía
+        sitio.setViviendas(new ArrayList<>());
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+        when(sitioRepo.countViviendasAsociadas(1L)).thenReturn(0L); // Simula 0 viviendas
+
+        // La llamada puede lanzar IllegalArgumentException o IllegalStateException (unchecked)
         sitioService.deleteSitioInteres(1L);
+
         verify(sitioRepo).delete(sitio);
+    }
+
+    @Test
+    void testDeleteSitioInteres_WithViviendas() {
+        ViviendaEntity vivienda = new ViviendaEntity();
+        // Aseguramos que la lista exista
+        sitio.setViviendas(new ArrayList<>(List.of(vivienda)));
+        when(sitioRepo.findById(1L)).thenReturn(Optional.of(sitio));
+        when(sitioRepo.countViviendasAsociadas(1L)).thenReturn(1L); // Simula que tiene viviendas
+
+        // El método assertThrows maneja la excepción esperada (IllegalStateException)
+        assertThrows(IllegalStateException.class, () -> sitioService.deleteSitioInteres(1L));
     }
 }

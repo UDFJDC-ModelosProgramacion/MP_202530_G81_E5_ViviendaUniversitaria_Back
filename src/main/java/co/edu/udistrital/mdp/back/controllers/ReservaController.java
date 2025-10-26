@@ -1,6 +1,7 @@
 package co.edu.udistrital.mdp.back.controllers;
 
 import co.edu.udistrital.mdp.back.dto.ReservaDTO;
+import co.edu.udistrital.mdp.back.dto.ReservaDetailDTO;
 import co.edu.udistrital.mdp.back.entities.ReservaEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
@@ -27,44 +28,79 @@ public class ReservaController {
 
     /** GET /reservas */
     @GetMapping
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(HttpStatus.OK)
     public List<ReservaDTO> findAll() {
-        List<ReservaEntity> list = reservaService.getReservas();
+        List<ReservaEntity> list = reservaService.getAllReservas();
         return modelMapper.map(list, new TypeToken<List<ReservaDTO>>() {
         }.getType());
     }
 
     /** GET /reservas/{id} */
     @GetMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public ReservaDTO findOne(@PathVariable("id") Long id) throws EntityNotFoundException {
-        ReservaEntity entity = reservaService.getReserva(id);
-        return modelMapper.map(entity, ReservaDTO.class);
+    @ResponseStatus(HttpStatus.OK)
+    public ReservaDetailDTO findOne(@PathVariable Long id) throws EntityNotFoundException {
+        try {
+            ReservaEntity entity = reservaService.getReserva(id);
+            return modelMapper.map(entity, ReservaDetailDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     /** POST /reservas */
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public ReservaDTO create(@RequestBody ReservaDTO dto) throws IllegalOperationException {
-        ReservaEntity entity = modelMapper.map(dto, ReservaEntity.class);
-        ReservaEntity created = reservaService.createReserva(entity);
-        return modelMapper.map(created, ReservaDTO.class);
+        try {
+            ReservaEntity entity = modelMapper.map(dto, ReservaEntity.class);
+            ReservaEntity created = reservaService.createReserva(entity);
+            return modelMapper.map(created, ReservaDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalOperationException(e.getMessage());
+        }
     }
 
     /** PUT /reservas/{id} */
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ReservaDTO update(@PathVariable("id") Long id, @RequestBody ReservaDTO dto)
+    public ReservaDTO update(@PathVariable Long id, @RequestBody ReservaDTO dto)
             throws EntityNotFoundException, IllegalOperationException {
-        ReservaEntity entity = modelMapper.map(dto, ReservaEntity.class);
-        ReservaEntity updated = reservaService.updateReserva(id, entity);
-        return modelMapper.map(updated, ReservaDTO.class);
+        try {
+            ReservaEntity entity = modelMapper.map(dto, ReservaEntity.class);
+            ReservaEntity updated = reservaService.updateReserva(id, entity);
+            return modelMapper.map(updated, ReservaDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     /** DELETE /reservas/{id} */
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) throws EntityNotFoundException, IllegalOperationException {
-        reservaService.deleteReserva(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id)
+            throws EntityNotFoundException, IllegalOperationException {
+        try {
+            reservaService.deleteReserva(id);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
+    }
+
+    /** GET /reservas/activas */
+    @GetMapping("/activas")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservaDTO> findActivas() {
+        List<ReservaEntity> list = reservaService.getReservasActivasHoy();
+        return modelMapper.map(list, new TypeToken<List<ReservaDTO>>() {
+        }.getType());
+    }
+
+    /** GET /reservas/pendientes */
+    @GetMapping("/pendientes")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservaDTO> findPendientes() {
+        List<ReservaEntity> list = reservaService.getReservasPendientes();
+        return modelMapper.map(list, new TypeToken<List<ReservaDTO>>() {
+        }.getType());
     }
 }

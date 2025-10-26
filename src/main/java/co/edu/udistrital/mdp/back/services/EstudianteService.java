@@ -1,15 +1,10 @@
 package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.EstudianteEntity;
-import co.edu.udistrital.mdp.back.entities.ReservaEntity;
 import co.edu.udistrital.mdp.back.repositories.EstudianteRepository;
-import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -18,53 +13,73 @@ import java.util.List;
 public class EstudianteService {
 
     private final EstudianteRepository estudianteRepo;
-    private final ReservaRepository reservaRepo;
 
     /**
-     * CREATE - Crear un nuevo estudiante validando:
-     * - Correo único
-     * - Campos obligatorios (nombre y correo)
-     * 
-     * @throws IllegalOperationException
+     * CREATE - crea un estudiante con validaciones:
+     * - nombre obligatorio, <=150 caracteres
+     * - correo obligatorio, formato válido y único (case-insensitive)
      */
-    public EstudianteEntity createEstudiante(EstudianteEntity in) throws IllegalOperationException {
+    public EstudianteEntity crear(EstudianteEntity in) {
         if (in == null)
-            throw new IllegalArgumentException("Entidad Estudiante obligatoria");
-        if (in.getCorreo() == null || in.getCorreo().isBlank())
-            throw new IllegalArgumentException("El correo no puede estar vacío");
-        if (in.getNombre() == null || in.getNombre().isBlank())
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
+            throw new IllegalArgumentException("Entidad Estudiante es obligatoria");
 
-        if (estudianteRepo.findByCorreo(in.getCorreo()).isPresent()) {
-            throw new IllegalOperationException("El correo ya está registrado");
-        }
+        String nombre = safeTrim(in.getNombre());
+        String correo = safeTrim(in.getCorreo());
+
+        if (nombre.isBlank())
+            throw new IllegalArgumentException("Nombre obligatorio");
+        if (nombre.length() > 150)
+            throw new IllegalArgumentException("Nombre excede 150 caracteres");
+
+        if (correo.isBlank())
+            throw new IllegalArgumentException("Correo obligatorio");
+        if (!correo.contains("@") || correo.length() > 150)
+            throw new IllegalArgumentException("Correo inválido");
+
+        if (estudianteRepo.existsByCorreoIgnoreCase(correo))
+            throw new IllegalArgumentException("Ya existe un estudiante con ese correo");
+
+        in.setNombre(nombre);
+        in.setCorreo(correo);
 
         return estudianteRepo.save(in);
     }
 
     /**
-     * READ - Obtener todos los estudiantes
+     * READ - buscar por ID
      */
-    public List<EstudianteEntity> getEstudiantes() {
-        return estudianteRepo.findAll();
-    }
-
-    /**
-     * READ - Obtener estudiante por ID
-     */
-    public EstudianteEntity getEstudiante(Long id) {
+    public EstudianteEntity obtenerPorId(Long id) {
         return estudianteRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado con ID: " + id));
     }
 
     /**
-     * UPDATE - Actualizar datos básicos del estudiante
+     * READ - listar todos los estudiantes
      */
-    public EstudianteEntity updateEstudiante(Long id, EstudianteEntity updates) {
-        EstudianteEntity found = getEstudiante(id);
+    public List<EstudianteEntity> listarTodos() {
+        return estudianteRepo.findAll();
+    }
 
-        if (updates.getNombre() != null && !updates.getNombre().isBlank())
-            found.setNombre(updates.getNombre());
+    /**
+     * UPDATE - permite cambiar datos excepto el correo si ya existe en otro
+     */
+    public EstudianteEntity actualizar(Long id, EstudianteEntity updates) {
+        EstudianteEntity found = obtenerPorId(id);
+
+        String nuevoNombre = safeTrim(updates.getNombre());
+        if (nuevoNombre.isBlank())
+            throw new IllegalArgumentException("Nombre obligatorio");
+        if (nuevoNombre.length() > 150)
+            throw new IllegalArgumentException("Nombre excede 150 caracteres");
+        found.setNombre(nuevoNombre);
+
+        String nuevoCorreo = safeTrim(updates.getCorreo());
+        if (!nuevoCorreo.isBlank() && !found.getCorreo().equalsIgnoreCase(nuevoCorreo)) {
+            if (estudianteRepo.existsByCorreoIgnoreCase(nuevoCorreo))
+                throw new IllegalArgumentException("Ya existe un estudiante con ese correo");
+            found.setCorreo(nuevoCorreo);
+        }
+
         if (updates.getTelefono() != null)
             found.setTelefono(updates.getTelefono());
         if (updates.getUniversidad() != null)
@@ -74,18 +89,21 @@ public class EstudianteService {
     }
 
     /**
-     * DELETE - Eliminar estudiante si no tiene reservas activas
-     * 
-     * @throws IllegalOperationException
+     * DELETE - eliminar estudiante solo si no tiene reservas o estancias activas
      */
-    public void deleteEstudiante(Long id) throws IllegalOperationException {
-        EstudianteEntity found = getEstudiante(id);
-        List<ReservaEntity> reservas = reservaRepo.findByEstudianteId(id);
+    public void eliminar(Long id) {
+        EstudianteEntity found = obtenerPorId(id);
 
-        if (!reservas.isEmpty()) {
-            throw new IllegalOperationException("No se puede eliminar el estudiante con reservas activas o históricas");
-        }
+        if (estudianteRepo.countReservasActivasByEstudianteId(id) > 0)
+            throw new IllegalStateException("No se puede eliminar: tiene reservas activas");
+
+        if (estudianteRepo.countEstanciasActivasByEstudianteId(id) > 0)
+            throw new IllegalStateException("No se puede eliminar: tiene estancias activas");
 
         estudianteRepo.delete(found);
+    }
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
     }
 }
