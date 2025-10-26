@@ -135,7 +135,7 @@ class ReservaServiceTest {
 
     @Test
     void createReserva_duplicada_throws() {
-        when(reservaRepo.existeReservaActiva(1L, 2L, any(), any())).thenReturn(true);
+        when(reservaRepo.existeReservaActiva(eq(1L), eq(2L), any(LocalDate.class), any(LocalDate.class))).thenReturn(true);
 
         ReservaEntity in = new ReservaEntity();
         in.setEstudiante(estudiante);
