@@ -13,10 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Level; // Importar Level
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/transacciones")
 public class TransaccionController {
+
+    // Constante para el mensaje de error repetido
+    private static final String MSG_TRANSACCION_NO_ENCONTRADA = "Transacción no encontrada con id: ";
+    private static final Logger LOGGER = Logger.getLogger(TransaccionController.class.getName()); // Logger como constante
 
     @Autowired
     private TransaccionService transaccionService;
@@ -27,7 +33,7 @@ public class TransaccionController {
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<TransaccionDTO> findAll() {
-        System.out.println("findAll() requiere implementación en TransaccionService.");
+        LOGGER.log(Level.INFO, "findAll() requiere implementación en TransaccionService.");
         return List.of(); // Devuelve vacío mientras no exista en servicio.
     }
 
@@ -45,7 +51,8 @@ public class TransaccionController {
             TransaccionEntity tran = transaccionService.obtenerTransaccionPorId(id);
             return modelMapper.map(tran, TransaccionDetailDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Transacción no encontrada con id: " + id);
+            // Usamos la constante
+            throw new EntityNotFoundException(MSG_TRANSACCION_NO_ENCONTRADA + id);
         }
     }
 
@@ -64,33 +71,47 @@ public class TransaccionController {
             TransaccionEntity tranActualizada = transaccionService.actualizarEstadoTransaccion(id, nuevoEstado);
             return modelMapper.map(tranActualizada, TransaccionDTO.class);
         } catch (IllegalArgumentException e) {
-             if (e.getMessage().contains("no encontrada")) {
-                 throw new EntityNotFoundException("Transacción no encontrada con id: " + id);
-             } else {
-                 throw new IllegalArgumentException("Estado proporcionado inválido: " + nuevoEstado);
-             }
+            if (e.getMessage().contains("no encontrada")) {
+                // Usamos la constante
+                throw new EntityNotFoundException(MSG_TRANSACCION_NO_ENCONTRADA + id);
+            } else {
+                throw new IllegalArgumentException("Estado proporcionado inválido: " + nuevoEstado);
+            }
         }
     }
+
     @PutMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public TransaccionDTO update(@PathVariable("id") Long id, @RequestBody TransaccionDTO dto) throws EntityNotFoundException {
-         System.out.println("update(" + id + ") - Considera usar el endpoint específico para actualizar estado.");
-         if (dto.getEstado() == null || dto.getEstado().isBlank()) {
-             throw new IllegalArgumentException("El DTO debe incluir el nuevo estado para actualizar.");
-         }
-         return updateEstado(id, dto.getEstado());
+        // Usamos la constante del logger
+        LOGGER.log(
+            Level.INFO,
+            "update({0}) - Considera usar el endpoint específico para actualizar estado.",
+            id
+        );
+
+        if (dto.getEstado() == null || dto.getEstado().isBlank()) {
+            throw new IllegalArgumentException("El DTO debe incluir el nuevo estado para actualizar.");
+        }
+        // Llamada al método específico para actualizar estado
+        return updateEstado(id, dto.getEstado());
     }
 
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) throws EntityNotFoundException {
         try {
-            transaccionService.obtenerTransaccionPorId(id); 
-            transaccionService.eliminarTransaccion(id); 
+            // Primero verifica si existe para lanzar EntityNotFoundException si aplica
+            transaccionService.obtenerTransaccionPorId(id);
+            // Luego intenta eliminar (que lanzará UnsupportedOperationException)
+            transaccionService.eliminarTransaccion(id);
+            // Esta línea no debería alcanzarse si eliminarTransaccion siempre lanza excepción
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Transacción no encontrada con id: " + id);
+             // Usamos la constante
+            throw new EntityNotFoundException(MSG_TRANSACCION_NO_ENCONTRADA + id);
         } catch (UnsupportedOperationException e) {
+            // Si el servicio lanza la excepción esperada, retornamos METHOD_NOT_ALLOWED
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
         }
     }
