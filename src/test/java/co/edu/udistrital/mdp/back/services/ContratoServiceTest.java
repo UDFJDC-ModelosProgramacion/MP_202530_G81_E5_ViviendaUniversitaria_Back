@@ -16,8 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 class ContratoServiceTest {
 
     @Mock
@@ -53,6 +53,7 @@ class ContratoServiceTest {
         estanciaPersistida = new EstanciaEntity(estudiante, vivienda, 6);
         estanciaPersistida.setId(10L);
 
+        // Comportamiento reutilizable por varios tests:
         when(contratoRepo.save(any(ContratoEntity.class))).thenAnswer(inv -> {
             ContratoEntity c = inv.getArgument(0);
             if (c.getId() == null) c.setId(99L);
@@ -175,6 +176,8 @@ class ContratoServiceTest {
         verify(contratoRepo, never()).save(any());
 
         estanciaPersistida.setContrato(null);
+        // restauramos el stub global para futuros tests
+        when(contratoRepo.existsByEstancia_Id(anyLong())).thenReturn(false);
     }
 
     @Test
@@ -223,6 +226,25 @@ class ContratoServiceTest {
     }
 
     @Test
+    void obtenerPorId_encontrado() {
+        ContratoEntity c = new ContratoEntity();
+        c.setId(500L);
+        when(contratoRepo.findById(500L)).thenReturn(Optional.of(c));
+
+        ContratoEntity res = contratoService.obtenerPorId(500L);
+        assertThat(res).isSameAs(c);
+        verify(contratoRepo).findById(500L);
+    }
+
+    @Test
+    void obtenerPorId_noEncontrado_debeLanzar() {
+        when(contratoRepo.findById(600L)).thenReturn(Optional.empty());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> contratoService.obtenerPorId(600L));
+        assertThat(ex.getMessage()).contains("Contrato no encontrado con ID: 600");
+    }
+
+    @Test
     void actualizar_intentarCambiarEstancia_debeLanzar() {
         ContratoEntity existing = new ContratoEntity();
         existing.setId(12L);
@@ -248,6 +270,71 @@ class ContratoServiceTest {
                 () -> contratoService.actualizar(12L, updates));
         assertThat(ex.getMessage().toLowerCase()).contains("no está permitido cambiar la estancia del contrato");
         verify(contratoRepo, never()).save(any());
+    }
+
+    @Test
+    void actualizar_validacionesYHappyPath() {
+        // preparar encontrado
+        ContratoEntity found = new ContratoEntity();
+        found.setId(20L);
+        found.setCodigo("ABC");
+        found.setFechaInicio(LocalDate.of(2024,1,1));
+        found.setFechaFin(LocalDate.of(2024,6,1));
+        found.setMontoTotal(10.0);
+        EstanciaEntity est = new EstanciaEntity();
+        est.setId(8L);
+        found.setEstancia(est);
+        when(contratoRepo.findById(20L)).thenReturn(Optional.of(found));
+
+        // Caso: codigo vacio -> error
+        ContratoEntity upd1 = new ContratoEntity();
+        upd1.setCodigo("  ");
+        IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class,
+                () -> contratoService.actualizar(20L, upd1));
+        assertThat(ex1.getMessage().toLowerCase()).contains("codigo obligatorio");
+
+        // Caso: fechas nulas -> error
+        ContratoEntity upd2 = new ContratoEntity();
+        upd2.setCodigo("NEW");
+        upd2.setFechaInicio(null);
+        upd2.setFechaFin(null);
+        IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class,
+                () -> contratoService.actualizar(20L, upd2));
+        assertThat(ex2.getMessage().toLowerCase()).contains("fechainicio y fechafin son obligatorias");
+
+        // Caso: fechas invalidas -> error
+        ContratoEntity upd3 = new ContratoEntity();
+        upd3.setCodigo("NEW");
+        upd3.setFechaInicio(LocalDate.of(2025,5,5));
+        upd3.setFechaFin(LocalDate.of(2025,5,1));
+        IllegalArgumentException ex3 = assertThrows(IllegalArgumentException.class,
+                () -> contratoService.actualizar(20L, upd3));
+        assertThat(ex3.getMessage().toLowerCase()).contains("fechafin debe ser posterior a fechainicio");
+
+        // Caso: monto negativo -> error
+        ContratoEntity upd4 = new ContratoEntity();
+        upd4.setCodigo("NEWCODE");
+        upd4.setFechaInicio(LocalDate.of(2025,1,1));
+        upd4.setFechaFin(LocalDate.of(2025,2,1));
+        upd4.setMontoTotal(-5.0);
+        IllegalArgumentException ex4 = assertThrows(IllegalArgumentException.class,
+                () -> contratoService.actualizar(20L, upd4));
+        assertThat(ex4.getMessage().toLowerCase()).contains("montototal debe ser >= 0");
+
+        // Happy path: cambios válidos
+        ContratoEntity updOk = new ContratoEntity();
+        updOk.setCodigo("NEWCODE");
+        updOk.setFechaInicio(LocalDate.of(2025,1,1));
+        updOk.setFechaFin(LocalDate.of(2025,2,1));
+        updOk.setMontoTotal(500.0);
+
+        when(contratoRepo.existsByCodigoIgnoreCase("NEWCODE")).thenReturn(false);
+        when(contratoRepo.save(any(ContratoEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        ContratoEntity res = contratoService.actualizar(20L, updOk);
+        assertThat(res.getCodigo()).isEqualTo("NEWCODE");
+        assertThat(res.getMontoTotal()).isEqualTo(500.0);
+        verify(contratoRepo).save(found);
     }
 
     @Test
@@ -282,5 +369,31 @@ class ContratoServiceTest {
         verify(contratoRepo).delete(found);
         verify(estanciaRepo).save(estanciaPersistida);
         assertThat(estanciaPersistida.getContrato()).isNull();
+    }
+
+    @Test
+    void obtenerTodos_delegaEnRepo() {
+        when(contratoRepo.findAll()).thenReturn(Collections.emptyList());
+        contratoService.obtenerTodos();
+        verify(contratoRepo).findAll();
+    }
+
+    @Test
+    void crearContrato_repoSaveLanza_propagacion() {
+        ContratoEntity in = new ContratoEntity();
+        in.setCodigo("CT-ERR");
+        EstanciaEntity ref = new EstanciaEntity();
+        ref.setId(10L);
+        in.setEstancia(ref);
+        in.setFechaInicio(LocalDate.of(2025, 1, 1));
+        in.setFechaFin(LocalDate.of(2025, 6, 1));
+        in.setMontoTotal(1500.0);
+
+        when(contratoRepo.existsByCodigoIgnoreCase("CT-ERR")).thenReturn(false);
+        // Override el stub global para este test
+        when(contratoRepo.save(any())).thenThrow(new RuntimeException("DB down"));
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> contratoService.crearContrato(in));
+        assertThat(ex.getMessage()).contains("DB down");
     }
 }
