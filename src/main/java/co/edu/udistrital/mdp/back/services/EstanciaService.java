@@ -56,7 +56,7 @@ public class EstanciaService {
                         "Vivienda no encontrada con ID: " + in.getViviendaArrendada().getId()));
 
         // Regla: la Vivienda debe estar disponible
-        if (!Boolean.TRUE.equals(vivienda.getDisponible())) {
+        if (!Boolean.TRUE.equals(vivienda.isDisponible())) {
             throw new IllegalStateException("La vivienda no está disponible para arrendar");
         }
 
@@ -105,7 +105,7 @@ public class EstanciaService {
                 ViviendaEntity nueva = viviendaRepo.findById(nuevaViviendaId)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Vivienda nueva no encontrada con ID: " + nuevaViviendaId));
-                if (!Boolean.TRUE.equals(nueva.getDisponible())) {
+                if (!Boolean.TRUE.equals(nueva.isDisponible())) {
                     throw new IllegalStateException("La nueva vivienda no está disponible");
                 }
                 // actualizar disponibilidad: liberar antigua, ocupar nueva
@@ -196,7 +196,7 @@ public class EstanciaService {
     /**
      * READ - obtener todas las estancias
      */
-    
+
     public java.util.List<EstanciaEntity> obtenerTodas() {
         return estanciaRepo.findAll();
     }

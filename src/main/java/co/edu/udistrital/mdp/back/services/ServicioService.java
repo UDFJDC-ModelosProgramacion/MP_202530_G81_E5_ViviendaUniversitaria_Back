@@ -21,13 +21,7 @@ public class ServicioService {
     private final ServicioRepository servicioRepository;
 
     /**
-     * CREATE - Crea un nuevo servicio validando todas las reglas de negocio
-     * 
-     * Reglas aplicadas:
-     * - nombre no puede estar vacío y debe ser único
-     * - categoria debe estar especificada
-     * - descripcion es opcional, máximo 500 caracteres
-     * - lista de viviendas se inicializa vacía
+     * Crea un nuevo servicio validando todas las reglas de negocio
      */
     public ServicioEntity crearServicio(ServicioEntity servicio) {
         // Validar nombre no vacío
@@ -39,13 +33,13 @@ public class ServicioService {
         // Validar que la categoría esté especificada
         validarCategoriaEspecificada(servicio);
 
-        // Validar descripción (si existe)
+        // Validar descripción
         validarDescripcion(servicio.getDescripcion());
 
         // Normalizar nombre (capitalizar primera letra)
         servicio.setNombre(normalizarNombre(servicio.getNombre()));
 
-        // Inicializar lista de viviendas vacía (regla de negocio)
+        // Inicializar lista de viviendas vacía
         if (servicio.getViviendas() == null) {
             servicio.setViviendas(new ArrayList<>());
         }
@@ -62,7 +56,7 @@ public class ServicioService {
     }
 
     /**
-     * READ - Obtiene un servicio por ID
+     * Obtiene un servicio por ID
      */
     public ServicioEntity obtenerServicioPorId(Long id) {
         return servicioRepository.findById(id)
@@ -70,21 +64,21 @@ public class ServicioService {
     }
 
     /**
-     * READ - Obtiene todos los servicios
+     * Obtiene todos los servicios
      */
     public List<ServicioEntity> obtenerTodosLosServicios() {
         return servicioRepository.findAll();
     }
 
     /**
-     * READ - Obtiene servicios por categoría
+     * Obtiene servicios por categoría
      */
     public List<ServicioEntity> obtenerServiciosPorCategoria(ServicioEntity.CategoriaServicio categoria) {
         return servicioRepository.findByCategoria(categoria);
     }
 
     /**
-     * READ - Busca un servicio por nombre
+     * Busca un servicio por nombre
      */
     public ServicioEntity obtenerServicioPorNombre(String nombre) {
         return servicioRepository.findByNombre(nombre)
@@ -92,12 +86,7 @@ public class ServicioService {
     }
 
     /**
-     * UPDATE - Actualiza un servicio existente validando reglas de negocio
-     * 
-     * Reglas aplicadas:
-     * - descripcion puede modificarse libremente
-     * - icono puede cambiar (validando ruta válida)
-     * - nombre puede cambiar pero debe seguir siendo único
+     * Actualiza un servicio existente validando reglas de negocio
      */
     public ServicioEntity actualizarServicio(Long id, ServicioEntity servicioActualizado) {
         // Verificar que el servicio existe
@@ -114,13 +103,13 @@ public class ServicioService {
             }
         }
 
-        // Actualizar descripción libremente (regla de negocio)
+        // Actualizar descripción libremente
         if (servicioActualizado.getDescripcion() != null) {
             validarDescripcion(servicioActualizado.getDescripcion());
             servicioExistente.setDescripcion(servicioActualizado.getDescripcion());
         }
 
-        // Actualizar icono (validando ruta si es necesario)
+        // Actualizar icono
         if (servicioActualizado.getIcono() != null) {
             validarIcono(servicioActualizado.getIcono());
             servicioExistente.setIcono(servicioActualizado.getIcono());
@@ -135,7 +124,7 @@ public class ServicioService {
     }
 
     /**
-     * UPDATE - Actualiza solo la descripción de un servicio
+     * Actualiza solo la descripción de un servicio
      */
     public ServicioEntity actualizarDescripcion(Long id, String nuevaDescripcion) {
         ServicioEntity servicio = obtenerServicioPorId(id);
@@ -145,7 +134,7 @@ public class ServicioService {
     }
 
     /**
-     * UPDATE - Actualiza solo el icono de un servicio
+     * Actualiza solo el icono de un servicio
      */
     public ServicioEntity actualizarIcono(Long id, String nuevoIcono) {
         ServicioEntity servicio = obtenerServicioPorId(id);
@@ -155,10 +144,7 @@ public class ServicioService {
     }
 
     /**
-     * DELETE - Elimina un servicio
-     * 
-     * Regla aplicada:
-     * - No se permite eliminar si está asociado a alguna Vivienda
+     * Elimina un servicio
      */
     public void eliminarServicio(Long id) {
         ServicioEntity servicio = obtenerServicioPorId(id);
@@ -190,11 +176,8 @@ public class ServicioService {
         return servicio.getViviendas().size();
     }
 
-    // ==================== MÉTODOS DE VALIDACIÓN ====================
-
     /**
      * Valida que el nombre no esté vacío
-     * Regla: El campo nombre no puede estar vacío
      */
     private void validarNombreNoVacio(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -204,10 +187,9 @@ public class ServicioService {
 
     /**
      * Valida que el nombre sea único en el sistema
-     * Regla: El campo nombre debe ser único en el sistema
      */
     private void validarNombreUnico(String nombre, Long idActual) {
-        // Buscar si existe otro servicio con el mismo nombre (case-insensitive)
+        // Buscar si existe otro servicio con el mismo nombre
         servicioRepository.findByNombre(nombre.trim()).ifPresent(servicioExistente -> {
             // Si estamos actualizando, permitir que sea el mismo servicio
             if (idActual == null || !servicioExistente.getId().equals(idActual)) {
@@ -220,8 +202,6 @@ public class ServicioService {
 
     /**
      * Valida que la categoría esté especificada
-     * Regla: El campo categoria debe especificar claramente la categoría del
-     * servicio
      */
     private void validarCategoriaEspecificada(ServicioEntity servicio) {
         if (servicio.getCategoria() == null) {
@@ -232,9 +212,7 @@ public class ServicioService {
     }
 
     /**
-     * Valida la descripción
-     * Regla: descripcion es opcional, pero si existe no puede superar 500
-     * caracteres
+     * Valida la descripción que no supere los 500 caracteres
      */
     private void validarDescripcion(String descripcion) {
         if (descripcion != null && descripcion.length() > 500) {
@@ -246,31 +224,25 @@ public class ServicioService {
 
     /**
      * Valida que el icono sea una ruta o referencia válida
-     * Regla: Asegurar que la nueva ruta o archivo de imagen sea válida y accesible
      */
     private void validarIcono(String icono) {
         if (icono == null || icono.trim().isEmpty()) {
             throw new IllegalArgumentException("El campo 'icono' no puede estar vacío");
         }
 
-        // Validación básica de formato (puedes expandir según tus necesidades)
+        // Validación básica de formato (tal vez luego le agreguemos que solo acepte jpg
+        // o png)
         String iconoTrim = icono.trim();
 
-        // Validar que no tenga caracteres peligrosos
+        // Validar que no tenga caracteres no permitidos
         if (iconoTrim.contains("..") || iconoTrim.contains("//")) {
             throw new IllegalArgumentException(
                     "El campo 'icono' contiene caracteres no permitidos");
         }
-
-        // Opcional: Validar extensiones permitidas
-        // if (!iconoTrim.matches(".*\\.(png|jpg|jpeg|svg|webp)$")) {
-        // throw new IllegalArgumentException("Formato de icono no válido");
-        // }
     }
 
     /**
-     * Normaliza el nombre del servicio (capitaliza primera letra)
-     * Ejemplo: "internet" -> "Internet"
+     * Normaliza el nombre del servicio poniendo la primera letra en mayúscula
      */
     private String normalizarNombre(String nombre) {
         if (nombre == null || nombre.isEmpty()) {

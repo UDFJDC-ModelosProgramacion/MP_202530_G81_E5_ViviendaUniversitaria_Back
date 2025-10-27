@@ -12,9 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -92,48 +95,27 @@ class ComentarioServiceTest {
         verify(comentarioRepository).save(comentarioValido);
     }
 
-    @Test
-    @DisplayName("Crear comentario con contenido nulo - debería lanzar excepción")
-    void crearComentario_ConContenidoNulo_DeberiaLanzarExcepcion() {
+    @ParameterizedTest
+    @DisplayName("Crear comentario con contenido inválido - debería lanzar excepción")
+    @CsvSource({
+            "null, contenido", // Caso 1: contenido nulo
+            "'   ', contenido", // Caso 2: contenido vacío
+            "'Muy bien', al menos 10 caracteres" // Caso 3: contenido corto
+    })
+    void crearComentario_ContenidoInvalido_DeberiaLanzarExcepcion(String contenido, String mensajeEsperado) {
         // Arrange
-        comentarioValido.setContenido(null);
+        if ("null".equals(contenido)) {
+            comentarioValido.setContenido(null);
+        } else {
+            comentarioValido.setContenido(contenido);
+        }
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
-        assertTrue(exception.getMessage().contains("contenido"));
-        verify(comentarioRepository, never()).save(any());
-    }
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
 
-    @Test
-    @DisplayName("Crear comentario con contenido vacío - debería lanzar excepción")
-    void crearComentario_ConContenidoVacio_DeberiaLanzarExcepcion() {
-        // Arrange
-        comentarioValido.setContenido("   ");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
-        assertTrue(exception.getMessage().contains("contenido"));
-        verify(comentarioRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Crear comentario con contenido menor a 10 caracteres - debería lanzar excepción")
-    void crearComentario_ConContenidoMuyCorto_DeberiaLanzarExcepcion() {
-        // Arrange
-        comentarioValido.setContenido("Muy bien");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
-        assertTrue(exception.getMessage().contains("al menos 10 caracteres"));
+        assertThat(exception.getMessage()).contains(mensajeEsperado);
         verify(comentarioRepository, never()).save(any());
     }
 
@@ -145,9 +127,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("2000 caracteres"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -160,9 +141,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("calificacion"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -175,9 +155,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("rango válido"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -190,9 +169,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("rango válido"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -205,9 +183,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("vivienda"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -221,9 +198,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("estudiante"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -239,9 +215,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
-            IllegalStateException.class,
-            () -> comentarioService.crearComentario(comentarioValido)
-        );
+                IllegalStateException.class,
+                () -> comentarioService.crearComentario(comentarioValido));
         assertTrue(exception.getMessage().contains("Estancia completada"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -289,9 +264,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.obtenerComentarioPorId(999L)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.obtenerComentarioPorId(999L));
         assertTrue(exception.getMessage().contains("no encontrado"));
     }
 
@@ -412,9 +386,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
-            IllegalStateException.class,
-            () -> comentarioService.actualizarComentario(1L, 999L, actualizacion)
-        );
+                IllegalStateException.class,
+                () -> comentarioService.actualizarComentario(1L, 999L, actualizacion));
         assertTrue(exception.getMessage().contains("autor original"));
         verify(comentarioRepository, never()).save(any());
     }
@@ -443,9 +416,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.actualizarContenido(1L, 1L, "Corto")
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.actualizarContenido(1L, 1L, "Corto"));
         verify(comentarioRepository, never()).save(any());
     }
 
@@ -472,9 +444,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         assertThrows(
-            IllegalArgumentException.class,
-            () -> comentarioService.actualizarCalificacion(1L, 1L, 10)
-        );
+                IllegalArgumentException.class,
+                () -> comentarioService.actualizarCalificacion(1L, 1L, 10));
         verify(comentarioRepository, never()).save(any());
     }
 
@@ -516,9 +487,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
-            IllegalStateException.class,
-            () -> comentarioService.eliminarComentario(1L, 999L, false)
-        );
+                IllegalStateException.class,
+                () -> comentarioService.eliminarComentario(1L, 999L, false));
         assertTrue(exception.getMessage().contains("autor original o un administrador"));
         verify(comentarioRepository, never()).deleteById(any());
     }
@@ -532,9 +502,8 @@ class ComentarioServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(
-            IllegalStateException.class,
-            () -> comentarioService.eliminarComentario(1L, 1L, false)
-        );
+                IllegalStateException.class,
+                () -> comentarioService.eliminarComentario(1L, 1L, false));
         assertTrue(exception.getMessage().contains("vivienda asociada"));
         verify(comentarioRepository, never()).deleteById(any());
     }

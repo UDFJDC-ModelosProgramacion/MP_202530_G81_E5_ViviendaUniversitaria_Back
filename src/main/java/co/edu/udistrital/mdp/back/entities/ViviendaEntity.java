@@ -32,12 +32,12 @@ public class ViviendaEntity extends BaseEntity {
 
     private int numeroHabitaciones;
 
-    private int numeroBaños;
+    private int numeroBanos;
 
     private Double areaMetrosCuadrados;
 
     @Column(nullable = false)
-    private Boolean disponible = true;
+    private boolean disponible = true;
 
     @Enumerated(EnumType.STRING)
     private TipoVivienda tipo;

@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -62,7 +60,7 @@ public class ViviendaService {
         viviendaExistente.setPrecioMensual(viviendaActualizada.getPrecioMensual());
         viviendaExistente.setDescripcion(viviendaActualizada.getDescripcion());
         viviendaExistente.setNumeroHabitaciones(viviendaActualizada.getNumeroHabitaciones());
-        viviendaExistente.setNumeroBaños(viviendaActualizada.getNumeroBaños());
+        viviendaExistente.setNumeroBanos(viviendaActualizada.getNumeroBanos());
         viviendaExistente.setAreaMetrosCuadrados(viviendaActualizada.getAreaMetrosCuadrados());
         viviendaExistente.setTipo(viviendaActualizada.getTipo());
 
@@ -83,7 +81,7 @@ public class ViviendaService {
 
     public void eliminarVivienda(Long id) {
         ViviendaEntity vivienda = obtenerViviendaPorId(id);
-        if (!vivienda.getDisponible()) {
+        if (!vivienda.isDisponible()) {
             throw new IllegalStateException(
                     "No se puede eliminar la vivienda con ID " + id +
                             " porque está actualmente arrendada (disponible = false)");
@@ -131,7 +129,7 @@ public class ViviendaService {
             throw new IllegalArgumentException(
                     "El campo 'numeroHabitaciones' debe tener un valor mínimo de 1");
         }
-        if (vivienda.getNumeroBaños() < 1) {
+        if (vivienda.getNumeroBanos() < 1) {
             throw new IllegalArgumentException(
                     "El campo 'numeroBaños' debe tener un valor mínimo de 1");
         }

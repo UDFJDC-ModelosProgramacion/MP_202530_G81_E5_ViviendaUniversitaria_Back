@@ -75,8 +75,17 @@ public class EstudianteService {
 
         String nuevoCorreo = safeTrim(updates.getCorreo());
         if (!nuevoCorreo.isBlank() && !found.getCorreo().equalsIgnoreCase(nuevoCorreo)) {
-            if (estudianteRepo.existsByCorreoIgnoreCase(nuevoCorreo))
+            // Validar formato
+            if (!nuevoCorreo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                throw new IllegalArgumentException("Correo inválido");
+            } // Validar longitud
+            if (nuevoCorreo.length() > 150) {
+                throw new IllegalArgumentException("Correo inválido");
+            } // Validar unicidad
+            if (estudianteRepo.existsByCorreoIgnoreCase(nuevoCorreo)) {
                 throw new IllegalArgumentException("Ya existe un estudiante con ese correo");
+            }
+
             found.setCorreo(nuevoCorreo);
         }
 

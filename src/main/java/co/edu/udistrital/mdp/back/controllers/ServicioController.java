@@ -22,6 +22,8 @@ import java.util.List;
 @RequestMapping("/servicios")
 public class ServicioController {
 
+    private static final String SERVICIO_NOT_FOUND_MSG = "Servicio no encontrado con id: ";
+
     @Autowired
     private ServicioService servicioService;
 
@@ -51,7 +53,7 @@ public class ServicioController {
             ServicioEntity servicio = servicioService.obtenerServicioPorId(id);
             return modelMapper.map(servicio, ServicioDetailDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -113,7 +115,7 @@ public class ServicioController {
             ServicioEntity servicioActualizado = servicioService.actualizarServicio(id, servicioEntity);
             return modelMapper.map(servicioActualizado, ServicioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -130,7 +132,7 @@ public class ServicioController {
             ServicioEntity servicio = servicioService.actualizarDescripcion(id, nuevaDescripcion);
             return modelMapper.map(servicio, ServicioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -147,7 +149,7 @@ public class ServicioController {
             ServicioEntity servicio = servicioService.actualizarIcono(id, nuevoIcono);
             return modelMapper.map(servicio, ServicioDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -161,7 +163,7 @@ public class ServicioController {
         try {
             return servicioService.puedeEliminarServicio(id);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -175,7 +177,7 @@ public class ServicioController {
         try {
             return servicioService.contarViviendasAsociadas(id);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         }
     }
 
@@ -189,7 +191,7 @@ public class ServicioController {
         try {
             servicioService.eliminarServicio(id);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Servicio no encontrado con id: " + id);
+            throw new EntityNotFoundException(SERVICIO_NOT_FOUND_MSG + id);
         } catch (IllegalStateException e) {
             throw new IllegalStateException("No se puede eliminar el servicio: " + e.getMessage());
         }

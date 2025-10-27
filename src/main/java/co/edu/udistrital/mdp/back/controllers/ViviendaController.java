@@ -21,6 +21,8 @@ import java.util.List;
 @RequestMapping("/viviendas")
 public class ViviendaController {
 
+    private static final String VIVIENDA_NOT_FOUND_MSG = "Vivienda no encontrada con id: ";
+
     @Autowired
     private ViviendaService viviendaService;
 
@@ -46,7 +48,7 @@ public class ViviendaController {
             ViviendaEntity vivienda = viviendaService.obtenerViviendaPorId(id);
             return modelMapper.map(vivienda, ViviendaDetailDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
+            throw new EntityNotFoundException(VIVIENDA_NOT_FOUND_MSG + id);
         }
     }
 
@@ -87,7 +89,7 @@ public class ViviendaController {
             ViviendaEntity viviendaActualizada = viviendaService.actualizarVivienda(id, viviendaEntity);
             return modelMapper.map(viviendaActualizada, ViviendaDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
+            throw new EntityNotFoundException(VIVIENDA_NOT_FOUND_MSG + id);
         }
     }
 
@@ -99,7 +101,7 @@ public class ViviendaController {
     @ResponseStatus(code = HttpStatus.OK)
     public ViviendaDTO cambiarDisponibilidad(
             @PathVariable("id") Long id,
-            @RequestParam("disponible") Boolean disponible) throws EntityNotFoundException {
+            @RequestParam("disponible") boolean disponible) throws EntityNotFoundException {
         try {
             ViviendaEntity vivienda;
             if (disponible) {
@@ -109,7 +111,7 @@ public class ViviendaController {
             }
             return modelMapper.map(vivienda, ViviendaDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
+            throw new EntityNotFoundException(VIVIENDA_NOT_FOUND_MSG + id);
         }
     }
 
@@ -123,7 +125,7 @@ public class ViviendaController {
         try {
             viviendaService.eliminarVivienda(id);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Vivienda no encontrada con id: " + id);
+            throw new EntityNotFoundException(VIVIENDA_NOT_FOUND_MSG + id);
         } catch (IllegalStateException e) {
             throw new IllegalStateException("No se puede eliminar la vivienda: " + e.getMessage());
         }
