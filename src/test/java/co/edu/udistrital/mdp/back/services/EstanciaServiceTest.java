@@ -61,7 +61,8 @@ class EstanciaServiceTest {
         // Mock para simular guardado de estancia
         when(estanciaRepo.save(any(EstanciaEntity.class))).thenAnswer(inv -> {
             EstanciaEntity e = inv.getArgument(0);
-            if (e.getId() == null) e.setId(50L); // Asigna ID si es nueva
+            if (e.getId() == null)
+                e.setId(50L); // Asigna ID si es nueva
             return e;
         });
 
@@ -87,7 +88,7 @@ class EstanciaServiceTest {
         assertThat(creado.getId()).isEqualTo(50L); // Verifica ID asignado
         assertThat(creado.getEstado()).isEqualTo(EstanciaEntity.EstadoEstancia.ACTIVA); // Verifica estado inicial
         assertThat(creado.getFechaInicio()).isNotNull(); // Verifica fecha inicio
-        assertThat(viviendaDisponible.getDisponible()).isFalse(); // Verifica que la vivienda se marcó no disponible
+        assertThat(viviendaDisponible.isDisponible()).isFalse(); // Verifica que la vivienda se marcó no disponible
 
         verify(estanciaRepo).save(any(EstanciaEntity.class)); // Verifica guardado de estancia
         verify(viviendaRepo).save(viviendaDisponible); // Verifica actualización de vivienda
@@ -206,7 +207,8 @@ class EstanciaServiceTest {
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> estanciaService.actualizar(11L, updates));
-        assertThat(ex.getMessage()).contains("No se permite cambiar viviendaArrendada cuando la estancia tiene contrato asociado");
+        assertThat(ex.getMessage())
+                .contains("No se permite cambiar viviendaArrendada cuando la estancia tiene contrato asociado");
         verify(estanciaRepo, never()).save(any()); // No debe intentar guardar
     }
 
