@@ -2,8 +2,6 @@ package co.edu.udistrital.mdp.back.controllers;
 
 import co.edu.udistrital.mdp.back.dto.SitioInteresDTO;
 import co.edu.udistrital.mdp.back.entities.SitioInteresEntity;
-import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
-import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.SitioInteresService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -37,7 +35,7 @@ public class SitioInteresController {
     /** GET /sitios-interes/{id} */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public SitioInteresDTO findOne(@PathVariable("id") Long id) throws EntityNotFoundException {
+    public SitioInteresDTO findOne(@PathVariable("id") Long id) {
         SitioInteresEntity sitio = sitioService.getSitioInteres(id);
         return modelMapper.map(sitio, SitioInteresDTO.class);
     }
@@ -45,7 +43,7 @@ public class SitioInteresController {
     /** POST /sitios-interes */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public SitioInteresDTO create(@RequestBody SitioInteresDTO dto) throws IllegalOperationException {
+    public SitioInteresDTO create(@RequestBody SitioInteresDTO dto) {
         SitioInteresEntity entity = modelMapper.map(dto, SitioInteresEntity.class);
         SitioInteresEntity created = sitioService.createSitioInteres(entity);
         return modelMapper.map(created, SitioInteresDTO.class);
@@ -54,8 +52,7 @@ public class SitioInteresController {
     /** PUT /sitios-interes/{id} — actualización completa */
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public SitioInteresDTO update(@PathVariable("id") Long id, @RequestBody SitioInteresDTO dto)
-            throws EntityNotFoundException, IllegalOperationException {
+    public SitioInteresDTO update(@PathVariable("id") Long id, @RequestBody SitioInteresDTO dto) {
         SitioInteresEntity entity = modelMapper.map(dto, SitioInteresEntity.class);
         SitioInteresEntity updated = sitioService.updateSitioInteres(id, entity);
         return modelMapper.map(updated, SitioInteresDTO.class);
@@ -64,8 +61,7 @@ public class SitioInteresController {
     /** DELETE /sitios-interes/{id} */
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id)
-            throws EntityNotFoundException, IllegalOperationException {
+    public void delete(@PathVariable("id") Long id) {
         sitioService.deleteSitioInteres(id);
     }
 }

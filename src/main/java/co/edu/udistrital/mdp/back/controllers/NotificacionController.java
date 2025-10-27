@@ -10,11 +10,20 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/notificaciones")
 public class NotificacionController {
+
+
+    private static final Logger log = LoggerFactory.getLogger(NotificacionController.class);
+
+    private static final String MSG_NOTIFICACION_NO_ENCONTRADA = "Notificación no encontrada con id: ";
 
     @Autowired
     private NotificacionService notificacionService;
@@ -26,8 +35,8 @@ public class NotificacionController {
     @ResponseStatus(code = HttpStatus.OK)
     public List<NotificacionDTO> findAll() {
 
-        System.out.println("findAll() requiere implementación en NotificacionService.");
-        return List.of(); 
+        log.warn("findAll() requiere implementación en NotificacionService.");
+        return List.of();
     }
 
     @GetMapping("/estudiante/{estudianteId}")
@@ -44,7 +53,7 @@ public class NotificacionController {
             NotificacionEntity notif = notificacionService.obtenerNotificacionPorId(id);
             return modelMapper.map(notif, NotificacionDetailDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Notificación no encontrada con id: " + id);
+            throw new EntityNotFoundException(MSG_NOTIFICACION_NO_ENCONTRADA + id);
         }
     }
 
@@ -52,7 +61,6 @@ public class NotificacionController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public NotificacionDTO create(@RequestBody NotificacionDTO dto) {
         NotificacionEntity notifEntity = modelMapper.map(dto, NotificacionEntity.class);
-
         NotificacionEntity nuevaNotif = notificacionService.enviarNotificacion(notifEntity);
         return modelMapper.map(nuevaNotif, NotificacionDTO.class);
     }
@@ -60,33 +68,34 @@ public class NotificacionController {
     @PatchMapping(value = "/{id}/marcarLeida")
     @ResponseStatus(code = HttpStatus.OK)
     public NotificacionDTO marcarComoLeida(@PathVariable("id") Long id) throws EntityNotFoundException {
-         try {
+        try {
             NotificacionEntity notifActualizada = notificacionService.marcarComoLeida(id);
             return modelMapper.map(notifActualizada, NotificacionDTO.class);
         } catch (IllegalArgumentException e) {
-             throw new EntityNotFoundException("Notificación no encontrada con id: " + id);
+            throw new EntityNotFoundException(MSG_NOTIFICACION_NO_ENCONTRADA + id);
         } catch (IllegalStateException e) {
-             NotificacionEntity notifActual = notificacionService.obtenerNotificacionPorId(id);
-             return modelMapper.map(notifActual, NotificacionDTO.class);
+            log.info("Intento de marcar como leída notificación {} que ya lo estaba.", id);
+            NotificacionEntity notifActual = notificacionService.obtenerNotificacionPorId(id);
+            return modelMapper.map(notifActual, NotificacionDTO.class);
         }
     }
 
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public NotificacionDTO update(@PathVariable("id") Long id, @RequestBody NotificacionDTO dto) throws EntityNotFoundException {
-        System.out.println("update(" + id + ") requiere implementación en NotificacionService si es necesario.");
-        dto.setId(id);
+    public NotificacionDTO update(@PathVariable("id") Long id, @RequestBody NotificacionDTO dto) {
+        log.warn("update({}) requiere implementación en NotificacionService si es necesario.", id);
+        dto.setId(id); 
         return dto;
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) throws EntityNotFoundException {
-         try {
+        try {
             notificacionService.eliminarNotificacion(id);
         } catch (IllegalArgumentException e) {
-             throw new EntityNotFoundException("No se pudo eliminar, notificación no encontrada con id: " + id);
+            throw new EntityNotFoundException("No se pudo eliminar, " + MSG_NOTIFICACION_NO_ENCONTRADA + id);
         }
     }
 }

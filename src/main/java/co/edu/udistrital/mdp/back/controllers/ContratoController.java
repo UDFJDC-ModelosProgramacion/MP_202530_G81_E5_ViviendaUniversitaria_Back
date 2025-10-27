@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/contratos")
@@ -31,7 +30,7 @@ public class ContratoController {
         List<ContratoEntity> contratos = contratoService.obtenerTodos();
         return contratos.stream()
                 .map(c -> modelMapper.map(c, ContratoDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/{id}")

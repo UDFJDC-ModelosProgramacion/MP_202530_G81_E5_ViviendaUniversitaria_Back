@@ -9,11 +9,22 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/preferenciasEstudiante")
 public class PreferenciaEstudianteController {
+
+    private static final Logger log = LoggerFactory.getLogger(PreferenciaEstudianteController.class);
+
+    private static final String MSG_PREFERENCIA_NO_ENCONTRADA_ID = "Preferencia no encontrada con id: ";
+    private static final String MSG_PREFERENCIAS_NO_ENCONTRADAS_EST = "Preferencias no encontradas para el estudiante con id: ";
+
 
     @Autowired
     private PreferenciaEstudianteService preferenciaService;
@@ -24,8 +35,8 @@ public class PreferenciaEstudianteController {
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<PreferenciaEstudianteDTO> findAll() {
-        System.out.println("findAll() requiere implementación en PreferenciaEstudianteService.");
-        return List.of(); 
+        log.warn("findAll() requiere implementación en PreferenciaEstudianteService.");
+        return List.of();
     }
 
     @GetMapping(value = "/{id}")
@@ -35,7 +46,7 @@ public class PreferenciaEstudianteController {
             PreferenciaEstudianteEntity pref = preferenciaService.obtenerPreferenciasPorId(id);
             return modelMapper.map(pref, PreferenciaEstudianteDetailDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Preferencia no encontrada con id: " + id);
+            throw new EntityNotFoundException(MSG_PREFERENCIA_NO_ENCONTRADA_ID + id);
         }
     }
 
@@ -46,7 +57,7 @@ public class PreferenciaEstudianteController {
             PreferenciaEstudianteEntity pref = preferenciaService.obtenerPreferenciasPorEstudianteId(estudianteId);
             return modelMapper.map(pref, PreferenciaEstudianteDetailDTO.class);
         } catch (IllegalArgumentException e) {
-             throw new EntityNotFoundException("Preferencias no encontradas para el estudiante con id: " + estudianteId);
+            throw new EntityNotFoundException(MSG_PREFERENCIAS_NO_ENCONTRADAS_EST + estudianteId);
         }
     }
 
@@ -61,22 +72,22 @@ public class PreferenciaEstudianteController {
     @PutMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public PreferenciaEstudianteDTO update(@PathVariable("id") Long id, @RequestBody PreferenciaEstudianteDTO dto) throws EntityNotFoundException {
-         try {
+        try {
             PreferenciaEstudianteEntity prefEntity = modelMapper.map(dto, PreferenciaEstudianteEntity.class);
             PreferenciaEstudianteEntity prefActualizada = preferenciaService.actualizarPreferencias(id, prefEntity);
             return modelMapper.map(prefActualizada, PreferenciaEstudianteDTO.class);
         } catch (IllegalArgumentException e) {
-             throw new EntityNotFoundException("Preferencia no encontrada con id: " + id);
+            throw new EntityNotFoundException(MSG_PREFERENCIA_NO_ENCONTRADA_ID + id);
         } catch (IllegalStateException e) {
             throw new IllegalStateException(e.getMessage());
         }
     }
 
-    
+
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) throws EntityNotFoundException {
-        System.out.println("delete(" + id + ") requiere implementación en PreferenciaEstudianteService.");
+    public void delete(@PathVariable("id") Long id) {
+        log.warn("delete({}) requiere implementación en PreferenciaEstudianteService.", id);
         throw new UnsupportedOperationException("La eliminación de preferencias no está implementada.");
     }
 }
