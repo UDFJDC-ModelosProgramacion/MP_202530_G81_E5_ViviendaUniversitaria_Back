@@ -11,7 +11,7 @@ public class ViviendaDTO {
     private BigDecimal precioMensual;
     private String descripcion;
     private int numeroHabitaciones;
-    private int numeroBaños;
+    private int numeroBanos;
     private Double areaMetrosCuadrados;
     private Boolean disponible;
     private String tipo;
