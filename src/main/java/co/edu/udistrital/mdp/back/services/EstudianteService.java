@@ -12,12 +12,12 @@ import java.util.List;
 @Transactional
 public class EstudianteService {
 
+    private static final String CORREO_INVALIDO_MSG = "Correo inválido";
+
     private final EstudianteRepository estudianteRepo;
 
     /**
-     * CREATE - crea un estudiante con validaciones:
-     * - nombre obligatorio, <=150 caracteres
-     * - correo obligatorio, formato válido y único (case-insensitive)
+     * crea un estudiante con validaciones
      */
     public EstudianteEntity crear(EstudianteEntity in) {
         if (in == null)
@@ -34,7 +34,7 @@ public class EstudianteService {
         if (correo.isBlank())
             throw new IllegalArgumentException("Correo obligatorio");
         if (!correo.contains("@") || correo.length() > 150)
-            throw new IllegalArgumentException("Correo inválido");
+            throw new IllegalArgumentException(CORREO_INVALIDO_MSG);
 
         if (estudianteRepo.existsByCorreoIgnoreCase(correo))
             throw new IllegalArgumentException("Ya existe un estudiante con ese correo");
@@ -76,11 +76,11 @@ public class EstudianteService {
         String nuevoCorreo = safeTrim(updates.getCorreo());
         if (!nuevoCorreo.isBlank() && !found.getCorreo().equalsIgnoreCase(nuevoCorreo)) {
             // Validar formato
-            if (!nuevoCorreo.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-                throw new IllegalArgumentException("Correo inválido");
+            if (!nuevoCorreo.matches("^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+                throw new IllegalArgumentException(CORREO_INVALIDO_MSG);
             } // Validar longitud
             if (nuevoCorreo.length() > 150) {
-                throw new IllegalArgumentException("Correo inválido");
+                throw new IllegalArgumentException(CORREO_INVALIDO_MSG);
             } // Validar unicidad
             if (estudianteRepo.existsByCorreoIgnoreCase(nuevoCorreo)) {
                 throw new IllegalArgumentException("Ya existe un estudiante con ese correo");

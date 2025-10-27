@@ -240,9 +240,10 @@ class ViviendaServiceTest {
 
         List<ViviendaEntity> result = viviendaService.obtenerTodasLasViviendas();
 
-        assertThat(result).isNotNull();
-        assertThat(result).hasSize(2);
-        assertThat(result).containsExactlyInAnyOrder(viviendaValida, v2);
+        assertThat(result)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactlyInAnyOrder(viviendaValida, v2);
         verify(viviendaRepository).findAll();
     }
 
