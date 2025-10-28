@@ -1,0 +1,190 @@
+{
+    "info": {
+        "_postman_id": "e63bd9fd-7e01-4ced-b0aa-45b219c4918d",
+        "name": "PreferenciaEstudiante",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "49447336",
+        "_collection_link": "https://aksan01-8772994.postman.co/workspace/Santiago's-Workspace~90e5ddf1-7a95-4677-8779-7011e07e002b/collection/49447336-e63bd9fd-7e01-4ced-b0aa-45b219c4918d?action=share&source=collection_link&creator=49447336"
+    },
+    "item": [
+        {
+            "name": "Create Preferencias",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201 Created\", () => { pm.response.to.have.status(201); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Preferencia has an ID\", () => { pm.expect(jsonData.id).to.be.a('number'); });",
+                            "pm.collectionVariables.set(\"preferencia_id\", jsonData.id);",
+                            "console.log(\"Preferencia ID guardada: \"+ jsonData.id);",
+                            "",
+                            "pm.test(\"Estudiante ID matches\", () => { pm.expect(jsonData.estudiante.id).to.eql(parseInt(pm.collectionVariables.get(\"estudiante_id\"))); });",
+                            "pm.test(\"Tipo Vivienda is Apartamento\", () => { pm.expect(jsonData.tipoVivienda).to.eql(\"Apartamento\"); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"precioMaximo\": 1200000,\n  \"zonaPreferida\": \"Chapinero\",\n  \"aceptaMascotas\": false,\n  \"tipoVivienda\": \"Apartamento\",\n  \"estudiante\": {\n    \"id\": {{estudiante_id}}\n  }\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{BaseURL}}/preferenciasEstudiante",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "preferenciasEstudiante"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get Preferencia por ID",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"ID matches requested ID\", () => { pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"preferencia_id\"))); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/preferenciasEstudiante/{{preferencia_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "preferenciasEstudiante",
+                        "{{preferencia_id}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get preferencia por estudiante",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Estudiante ID matches requested ID\", () => { pm.expect(jsonData.estudiante.id).to.eql(parseInt(pm.collectionVariables.get(\"estudiante_id\"))); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/preferenciasEstudiante/estudiante/{{estudiante_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "preferenciasEstudiante",
+                        "estudiante",
+                        "{{estudiante_id}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Actualizar Preferencias",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Precio Maximo updated\", () => { pm.expect(jsonData.precioMaximo).to.eql(1300000); });",
+                            "pm.test(\"Acepta Mascotas updated\", () => { pm.expect(jsonData.aceptaMascotas).to.be.true; });",
+                            "pm.test(\"Zona Preferida updated\", () => { pm.expect(jsonData.zonaPreferida).to.eql(\"Teusaquillo\"); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"precioMaximo\": 1300000, \n  \"zonaPreferida\": \"Teusaquillo\", \n  \"aceptaMascotas\": true,\n  \"tipoVivienda\": \"Apartamento\", \n  \"estudiante\": {\n      \"id\": {{estudiante_id}} \n  }\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{BaseURL}}/preferenciasEstudiante/{{preferencia_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "preferenciasEstudiante",
+                        "{{preferencia_id}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Eliminar Preferencias (Debe fallar)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Esperamos 500 Internal Server Error porque el controlador lanza UnsupportedOperationException",
+                            "pm.test(\"Status code is 500 Internal Server Error\", () => { pm.response.to.have.status(500); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/preferenciasEstudiante/{{preferencia_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "preferenciasEstudiante",
+                        "{{preferencia_id}}"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
