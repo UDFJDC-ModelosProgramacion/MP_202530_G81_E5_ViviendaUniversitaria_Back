@@ -1,0 +1,180 @@
+{
+    "info": {
+        "_postman_id": "e63bd9fd-7e01-4ced-b0aa-45b219c4918d",
+        "name": "Notificacion",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "49447336",
+        "_collection_link": "https://aksan01-8772994.postman.co/workspace/Santiago's-Workspace~90e5ddf1-7a95-4677-8779-7011e07e002b/collection/49447336-e63bd9fd-7e01-4ced-b0aa-45b219c4918d?action=share&source=collection_link&creator=49447336"
+    },
+    "item": [
+        {
+            "name": "Create Notification",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201 Created\", () => { pm.response.to.have.status(201); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Notificacion has an ID\", () => { pm.expect(jsonData.id).to.be.a('number'); });",
+                            "pm.collectionVariables.set(\"notificacion_id\", jsonData.id);",
+                            "console.log(\"Notificacion ID guardada: \"+jsonData.id);",
+                            "",
+                            "pm.test(\"Mensaje matches\", () => { pm.expect(jsonData.mensaje).to.eql(\"Tu reserva ha sido confirmada.\"); });",
+                            "pm.test(\"Leida is false\", () => { pm.expect(jsonData.leida).to.be.false; });",
+                            "pm.test(\"Estudiante ID matches\", () => { pm.expect(jsonData.estudiante.id).to.eql(parseInt(pm.collectionVariables.get(\"estudiante_id\"))); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"mensaje\":\"Tu reserva ha sido confirmada.\",\n    \"estudiante\": {\n        \"id\":{{estudiante_id}}\n    }\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{BaseURL}}/notificaciones",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "notificaciones"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get notification por estudiante",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Response is an array\", () => { pm.expect(jsonData).to.be.an('array'); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/notificaciones/estudiante/{{estudiante_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "notificaciones",
+                        "estudiante",
+                        "{{estudiante_id}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get una notificacion por ID",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"ID matches requested ID\", () => { pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"notificacion_id\"))); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/notificaciones/{{notificacion_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "notificaciones",
+                        "{{notificacion_id}}"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Marcar Notificacion como Leida",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200 OK\", () => { pm.response.to.have.status(200); });",
+                            "const jsonData = pm.response.json();",
+                            "pm.test(\"Leida is true\", () => { pm.expect(jsonData.leida).to.be.true; });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/notificaciones/{{notificacion_id}}/marcarLeida",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "notificaciones",
+                        "{{notificacion_id}}",
+                        "marcarLeida"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Eliminar Notificacion",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 204 No Content\", () => { pm.response.to.have.status(204); });"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{BaseURL}}/notificaciones/{{notificacion_id}}",
+                    "host": [
+                        "{{BaseURL}}"
+                    ],
+                    "path": [
+                        "notificaciones",
+                        "{{notificacion_id}}"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}

@@ -15,15 +15,6 @@ public class PreferenciaEstudianteService {
     private final PreferenciaEstudianteRepository preferenciaRepository;
     private final EstudianteRepository estudianteRepository;
 
-    /**
-     * CREATE - Crea un nuevo perfil de preferencias para un estudiante.
-     *
-     * Reglas aplicadas:
-     * - Debe asociarse a un Estudiante que exista.
-     * - Un Estudiante no puede tener más de un perfil de preferencias.
-     * - El precioMaximo debe ser un valor positivo.
-     * - El tipoVivienda no puede ser nulo o vacío.
-     */
     public PreferenciaEstudianteEntity crearPreferencias(PreferenciaEstudianteEntity preferencias) {
         validarEstudianteAsociado(preferencias);
         validarUnicidadPorEstudiante(preferencias.getEstudiante().getId());
@@ -32,9 +23,6 @@ public class PreferenciaEstudianteService {
         return preferenciaRepository.save(preferencias);
     }
 
-    /**
-     * READ - Obtiene las preferencias por el ID del perfil.
-     */
     public PreferenciaEstudianteEntity obtenerPreferenciasPorId(Long id) {
         return preferenciaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Perfil de preferencias no encontrado con ID: " + id));
