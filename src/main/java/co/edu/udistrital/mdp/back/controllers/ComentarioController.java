@@ -18,6 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/comentarios")
+@CrossOrigin(origins = "*")
 public class ComentarioController {
 
     private static final String MSG_COMENTARIO_NO_ENCONTRADO = "Comentario no encontrado con id: ";

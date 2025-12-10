@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/universidades")
+@RequestMapping("/universidades-cerca")
+@CrossOrigin(origins = "*")
 public class UniversidadCercaController {
 
     @Autowired
@@ -29,7 +30,8 @@ public class UniversidadCercaController {
     @ResponseStatus(code = HttpStatus.OK)
     public List<UniversidadCercaDTO> findAll() {
         List<UniversidadCercaEntity> list = universidadService.listarTodas();
-        return modelMapper.map(list, new TypeToken<List<UniversidadCercaDTO>>() {}.getType());
+        return modelMapper.map(list, new TypeToken<List<UniversidadCercaDTO>>() {
+        }.getType());
     }
 
     @GetMapping("/{id}")

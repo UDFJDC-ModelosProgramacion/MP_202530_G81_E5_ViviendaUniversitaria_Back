@@ -2,15 +2,22 @@ package co.edu.udistrital.mdp.back.controllers;
 
 import co.edu.udistrital.mdp.back.dto.ViviendaDTO;
 import co.edu.udistrital.mdp.back.dto.ViviendaDetailDTO;
+import co.edu.udistrital.mdp.back.dto.ViviendaEstadisticasDTO;
+import co.edu.udistrital.mdp.back.dto.MultimediaDTO;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
+import co.edu.udistrital.mdp.back.entities.MultimediaEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.services.ViviendaService;
+import co.edu.udistrital.mdp.back.services.MultimediaService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -19,12 +26,16 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/viviendas")
+@CrossOrigin(origins = "*")
 public class ViviendaController {
 
     private static final String VIVIENDA_NOT_FOUND_MSG = "Vivienda no encontrada con id: ";
 
     @Autowired
     private ViviendaService viviendaService;
+
+    @Autowired
+    private MultimediaService multimediaService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -60,6 +71,32 @@ public class ViviendaController {
     @ResponseStatus(code = HttpStatus.OK)
     public List<ViviendaDTO> findByCiudadDisponible(@PathVariable("ciudad") String ciudad) {
         List<ViviendaEntity> viviendas = viviendaService.obtenerViviendasDisponiblesPorCiudad(ciudad);
+        return modelMapper.map(viviendas, new TypeToken<List<ViviendaDTO>>() {
+        }.getType());
+    }
+
+    /**
+     * GET /viviendas/{id}/estadist icas
+     * Obtiene las estadísticas de ocupación e ingresos de la vivienda
+     */
+    @GetMapping("/{id}/estadisticas")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ViviendaEstadisticasDTO getEstadisticas(@PathVariable("id") Long id) throws EntityNotFoundException {
+        try {
+            return viviendaService.obtenerEstadisticas(id);
+        } catch (IllegalArgumentException e) {
+            throw new EntityNotFoundException(VIVIENDA_NOT_FOUND_MSG + id);
+        }
+    }
+
+    /**
+     * GET /viviendas/propietario/{propietarioId}
+     * Obtiene todas las viviendas de un propietario específico
+     */
+    @GetMapping("/propietario/{propietarioId}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<ViviendaDTO> findByPropietario(@PathVariable("propietarioId") Long propietarioId) {
+        List<ViviendaEntity> viviendas = viviendaService.obtenerViviendasPorPropietario(propietarioId);
         return modelMapper.map(viviendas, new TypeToken<List<ViviendaDTO>>() {
         }.getType());
     }
@@ -129,5 +166,61 @@ public class ViviendaController {
         } catch (IllegalStateException e) {
             throw new IllegalStateException("No se puede eliminar la vivienda: " + e.getMessage());
         }
+    }
+
+    /**
+     * POST /viviendas/{id}/multimedia
+     * Sube una imagen para una vivienda
+     */
+    @PostMapping(value = "/{id}/multimedia", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public MultimediaDTO uploadImage(
+            @PathVariable("id") Long id,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "titulo", required = false) String titulo,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "esPortada", required = false, defaultValue = "false") Boolean esPortada)
+            throws IOException {
+        MultimediaEntity multimedia = multimediaService.subirImagenVivienda(
+                id, file, titulo, descripcion, esPortada);
+        return modelMapper.map(multimedia, MultimediaDTO.class);
+    }
+
+    /**
+     * GET /viviendas/{id}/multimedia
+     * Obtiene todas las imágenes de una vivienda
+     */
+    @GetMapping("/{id}/multimedia")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<MultimediaDTO> getImages(@PathVariable("id") Long id) {
+        try {
+            List<MultimediaEntity> multimedia = multimediaService.obtenerImagenesVivienda(id);
+            return modelMapper.map(multimedia, new TypeToken<List<MultimediaDTO>>() {
+            }.getType());
+        } catch (Exception e) {
+            // Si falla, retornar lista vacía en vez de error 500
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    /**
+     * DELETE /viviendas/multimedia/{multimediaId}
+     * Elimina una imagen
+     */
+    @DeleteMapping("/multimedia/{multimediaId}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void deleteImage(@PathVariable("multimediaId") Long multimediaId) throws IOException {
+        multimediaService.eliminarImagen(multimediaId);
+    }
+
+    /**
+     * PATCH /viviendas/multimedia/{multimediaId}/portada
+     * Marca una imagen como portada
+     */
+    @PatchMapping("/multimedia/{multimediaId}/portada")
+    @ResponseStatus(code = HttpStatus.OK)
+    public MultimediaDTO setAsPortada(@PathVariable("multimediaId") Long multimediaId) {
+        MultimediaEntity multimedia = multimediaService.marcarComoPortada(multimediaId);
+        return modelMapper.map(multimedia, MultimediaDTO.class);
     }
 }

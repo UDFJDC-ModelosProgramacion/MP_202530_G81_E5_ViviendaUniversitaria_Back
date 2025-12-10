@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 @Data
 public class ViviendaDTO {
+    private Long id;
     private String direccion;
     private String ciudad;
     private String barrio;

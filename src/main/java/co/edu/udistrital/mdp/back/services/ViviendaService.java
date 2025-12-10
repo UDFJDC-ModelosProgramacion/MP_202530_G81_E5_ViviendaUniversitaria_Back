@@ -1,12 +1,17 @@
 package co.edu.udistrital.mdp.back.services;
 
+import co.edu.udistrital.mdp.back.dto.ViviendaEstadisticasDTO;
+import co.edu.udistrital.mdp.back.entities.ReservaEntity;
 import co.edu.udistrital.mdp.back.entities.ViviendaEntity;
+import co.edu.udistrital.mdp.back.repositories.ReservaRepository;
 import co.edu.udistrital.mdp.back.repositories.ViviendaRepository;
 import co.edu.udistrital.mdp.back.repositories.PropietarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -16,6 +21,7 @@ public class ViviendaService {
 
     private final ViviendaRepository viviendaRepository;
     private final PropietarioRepository propietarioRepository;
+    private final ReservaRepository reservaRepository;
 
     public ViviendaEntity crearVivienda(ViviendaEntity vivienda) {
         validarCamposObligatorios(vivienda);
@@ -38,6 +44,10 @@ public class ViviendaService {
 
     public List<ViviendaEntity> obtenerViviendasDisponiblesPorCiudad(String ciudad) {
         return viviendaRepository.findByCiudadAndDisponible(ciudad, true);
+    }
+
+    public List<ViviendaEntity> obtenerViviendasPorPropietario(Long propietarioId) {
+        return viviendaRepository.findByPropietarioId(propietarioId);
     }
 
     public ViviendaEntity actualizarVivienda(Long id, ViviendaEntity viviendaActualizada) {
@@ -141,5 +151,72 @@ public class ViviendaService {
                     "El campo 'tipo' debe especificar claramente el tipo de vivienda " +
                             "(APARTAMENTO, CASA, HABITACION, ESTUDIO, COMPARTIDO)");
         }
+    }
+
+    public ViviendaEstadisticasDTO obtenerEstadisticas(Long viviendaId) {
+        ViviendaEntity vivienda = obtenerViviendaPorId(viviendaId);
+        ViviendaEstadisticasDTO estadisticas = new ViviendaEstadisticasDTO();
+
+        // Calcular ocupación anual
+        Double ocupacionAnual = calcularOcupacionAnual(viviendaId);
+        estadisticas.setOcupacionAnual(ocupacionAnual);
+
+        // Calcular ingresos
+        BigDecimal ingresosMesActual = calcularIngresosMesActual(viviendaId, vivienda.getPrecioMensual());
+        BigDecimal ingresosAnual = calcularIngresosAnual(viviendaId, vivienda.getPrecioMensual());
+        estadisticas.setIngresosMesActual(ingresosMesActual);
+        estadisticas.setIngresosAnual(ingresosAnual);
+
+        return estadisticas;
+    }
+
+    private Double calcularOcupacionAnual(Long viviendaId) {
+        List<ReservaEntity> reservas = reservaRepository.findByViviendaId(viviendaId);
+
+        if (reservas.isEmpty()) {
+            return 0.0;
+        }
+
+        LocalDate inicioAnio = LocalDate.now().withDayOfYear(1);
+        LocalDate finAnio = LocalDate.now().withDayOfYear(LocalDate.now().lengthOfYear());
+
+        long diasOcupados = reservas.stream()
+                .filter(r -> r.getFechaFin() != null && r.getFechaInicio() != null)
+                .mapToLong(r -> {
+                    LocalDate inicio = r.getFechaInicio().isAfter(inicioAnio) ? r.getFechaInicio() : inicioAnio;
+                    LocalDate fin = r.getFechaFin().isBefore(finAnio) ? r.getFechaFin() : finAnio;
+                    return inicio.isBefore(fin) ? ChronoUnit.DAYS.between(inicio, fin) : 0;
+                })
+                .sum();
+
+        long diasEnAnio = ChronoUnit.DAYS.between(inicioAnio, finAnio);
+        return diasEnAnio > 0 ? (diasOcupados * 100.0) / diasEnAnio : 0.0;
+    }
+
+    private BigDecimal calcularIngresosMesActual(Long viviendaId, BigDecimal precioMensual) {
+        LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
+        LocalDate finMes = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+
+        List<ReservaEntity> reservasMes = reservaRepository.findByViviendaId(viviendaId)
+                .stream()
+                .filter(r -> r.getFechaInicio() != null && r.getFechaFin() != null)
+                .filter(r -> !r.getFechaFin().isBefore(inicioMes) && !r.getFechaInicio().isAfter(finMes))
+                .toList();
+
+        return reservasMes.isEmpty() ? BigDecimal.ZERO : precioMensual;
+    }
+
+    private BigDecimal calcularIngresosAnual(Long viviendaId, BigDecimal precioMensual) {
+        List<ReservaEntity> reservas = reservaRepository.findByViviendaId(viviendaId);
+
+        LocalDate inicioAnio = LocalDate.now().withDayOfYear(1);
+        LocalDate finAnio = LocalDate.now().withDayOfYear(LocalDate.now().lengthOfYear());
+
+        long mesesOcupados = reservas.stream()
+                .filter(r -> r.getFechaFin() != null && r.getFechaInicio() != null)
+                .filter(r -> !r.getFechaFin().isBefore(inicioAnio) && !r.getFechaInicio().isAfter(finAnio))
+                .count();
+
+        return precioMensual.multiply(BigDecimal.valueOf(mesesOcupados));
     }
 }
